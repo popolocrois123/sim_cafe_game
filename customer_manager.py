@@ -28,10 +28,6 @@ class CustomerManager:
         # 初期顧客数
         self.num_customers_to_initialize = num_customers
 
-        # 現在の客の数の管理
-        # 変更
-        # self.count_num_customers = 0
-
         # mapのWの場所のリストを取得
         self.wait_queue = self.map.wait_queue
         # logger.debug(f"待機場所の座標{self.wait_queue}")
@@ -62,19 +58,6 @@ class CustomerManager:
         # 生成される顧客数の上限
         self.max_customers = MAX_CUSTOMERS  # 任意：上限を設定したい場合
         # logger.debug(f"max_customer: {self.max_customers}")
-        
-        # 宿題
-        # 顧客の数の管理
-        # 店の外の客の数
-        # self.outside_customer_num = 0
-        # # 店の外の客の最大値
-        # self.outside_customer_max = 5
-
-
-        # # 店の中の客の数
-        # self.inside_customer_num = 0
-        # # 店の中の客の最大値
-        # self.inside_customer_max = 5
 
         # 初期顧客
         self.setup_initial_customers()
@@ -88,14 +71,7 @@ class CustomerManager:
     def setup_initial_customers(self):
         # ⭐ 初期顧客を spawn_customer() 経由で生成
         for _ in range(self.num_customers_to_initialize):
-            # もし客（self.count_num_customers）がself.max_customersより小さかったら
-            # 変更
-            # if self.count_num_customers < self.max_customers:
-            # if self.outside_customer_num < self.outside_customer_max:
             self.spawn_customer()
-                # self.count_num_customers += 1
-                # logger.info(f"お客の数（初期）{self.count_num_customers}")
-                # self.outside_customer_num += 1
                 
                 
 
@@ -134,8 +110,6 @@ class CustomerManager:
         random_G = random.choice(self.general_area) if self.general_area else None
         # マップのグリッドサイズの取得
         row_grid = len(self.map_data)
-        # タプルからxとyを取り出す
-        # xはそのままで
         
         x, y = random_G
         x, y = self.map.to_pyglet_x_y(x, y)
@@ -156,12 +130,6 @@ class CustomerManager:
         # # そのインスタンスをリストの中にいれて管理する
         self.customers.append(simple_mover)
 
-        # # 宿題
-        # self.count_num_customers += 1
-        # logger.info(f"お客の数{self.count_num_customers}")
-        # 宿題
-        # self.outside_customer_num += 1
-        # logger.info(f"外の客の数(増える場合){self.outside_customer_num}")
 
 
 
@@ -171,22 +139,14 @@ class CustomerManager:
     def assign_entrance(self):
         for cu in self.customers:
             if cu.state == "outside":
-                # if self.current_entrance_buffer <= self.max_entrance_buffer:
+                    x, y = self.map.entrance_pos
+                    x, y = self.map.to_pyglet_x_y(x, y)
+                    # y = self.real_grid_y - (y + 1)
+                    cu.setup_new_target(x, y)
+                    cu.state = "moving_to_entrance"
+                    logger.info(f"[入り口にアサイン]キャラID：{cu.id} state: {cu.state}")
 
-                    # 変更
-                    # if self.inside_customer_num < self.inside_customer_max:
-                        x, y = self.map.entrance_pos
-                        x, y = self.map.to_pyglet_x_y(x, y)
-                        # y = self.real_grid_y - (y + 1)
-                        cu.setup_new_target(x, y)
-                        cu.state = "moving_to_entrance"
-                        logger.info(f"[入り口にアサイン]キャラID：{cu.id} state: {cu.state}")
-
-
-                        # self.current_entrance_buffer += 1
-                        # # 宿題
-                        # self.inside_customer_num += 1
-                        # logger.info(f"中の客の数(増える場合){self.inside_customer_num}")
+                    # logger.info(f"中の客の数(増える場合){self.inside_customer_num}")
 
 
     def move_to_entrance(self, dt):
@@ -269,20 +229,6 @@ class CustomerManager:
 
                 self.customers.pop(i)
 
-                # self.inside_customer_num -= 1
-
-                # # 宿題
-                # # # # 客の数を減らす
-                # self.count_num_customers -= 1
-                # # # self.setup_initial_customers()
-                # # self.update(dt)
-                # if self.count_num_customers < self.max_customers:
-                #     self.spawn_customer()
-                #     self.count_num_customers += 1
-                # self.outside_customer_num -= 1
-                # logger.info(f"外の客の数(客を削除したとき){self.outside_customer_num}")
-                
-
 
     def chack_waiting(self):
         pass
@@ -304,7 +250,5 @@ class CustomerManager:
                         logger.info(f"[詰める] 客のid {customer.id}, 詰める処理のx,y {x, y}, state: {customer.state}")
                         customer.setup_new_target(17, 5)
                         customer.state = "moving_to_wait"
-                        # customer.state = "waiting_to_sit_to_seat"
 
-                        # logger.info(f"詰める処理 {x, y}")
                         break

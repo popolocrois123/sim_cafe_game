@@ -163,7 +163,7 @@ class SeatManager():
 
 
                     # 変更
-                    self.parent.customer_manager.inside_customer_num -= 1
+                    # self.parent.customer_manager.inside_customer_num -= 1
 
                     
 
