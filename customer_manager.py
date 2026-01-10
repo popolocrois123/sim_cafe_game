@@ -9,7 +9,7 @@ from loguru import logger
 
 
 class CustomerManager:
-    def __init__(self, parent, map_data, map, num_customers=1):
+    def __init__(self, parent, map_data, map, num_customers=5):
         self.parent = parent
 
         self.batch = self.parent.batch
