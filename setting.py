@@ -5,7 +5,7 @@ MAX_LOGS = 100
 
 # 顧客の飲食時間
 ## 宿題！
-STAY_DURATION = 20.0
+STAY_DURATION = 10.0
 
 # 顧客生成の上限
 MAX_CUSTOMERS = 50
@@ -16,7 +16,6 @@ second_random = random.random()
 SPAWN_TIME = (3 / MAX_CUSTOMERS) + second_random
 
 
-STAY_DURATION = 2.5
 # lofファイルの読み込み
 LOG_PATH = "customer_lifecycle.log"
 MAP_DATA = [

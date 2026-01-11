@@ -117,22 +117,7 @@ class SeatManager():
         for cu in self.customers:
             if cu.state == "seated":
                 cu.stay_timer += dt
-                # [宿題]食べている間向きの変更をする
-                # for idx, i in enumerate(self.map.table_queue):
-                #     logger.debug(f"テーブルの座標{self.map.table_queue}")
-                #     if cu.grid_y in i and (cu.grid_x+1) in i:
-                #         direction = "right"
-                        
-                #     elif cu.grid_y in i and (cu.grid_x-1) in i:
-                #         direction = "left"
 
-                #     else:
-                #         direction = "down"
-                #         logger.debug(f"キャラの座標{(cu.grid_x, cu.grid_y)}")
-
-                    
-                    # cu.current_animation = direction
-                    # cu.sprite.image = cu.animation_frames[direction]
                 for idx, cu_seatnum in enumerate(self.seat_queue):
                     if cu in cu_seatnum:
                         if cu_seatnum[1] % 2 == 0:
@@ -144,6 +129,8 @@ class SeatManager():
                         
                         cu.current_animation = direction
                         cu.sprite.image = cu.animation_frames[direction]
+
+                # logger.info(f"【食事時間] キャラID：{cu.id} stay_timer: {cu.stay_timer}") 
 
 
                 if cu.stay_timer >= STAY_DURATION:
@@ -159,6 +146,9 @@ class SeatManager():
                     # cu.sprite.image = self.animation_frames["left"]
 
                     cu.state = "leaving"
+                    # logger.info(f"【食事後時間] キャラID：{cu.id} stay_timer: {cu.stay_timer}") 
+                    # logger.info(f"【食事設定時間] キャラID：{cu.id} 設定時間: {STAY_DURATION}") 
+
                     logger.info(f"[出口にアサイン]キャラID：{cu.id} state: {cu.state}")
 
 
@@ -172,6 +162,8 @@ class SeatManager():
                         if cust_obj == cu:
                             self.seat_in_use[seat_i] = False
                             self.seat_queue.pop(idx)
+                            # cu.stay_timer = 0
+
                             # logger.info(f"【座席解放】id: {cu.id} seat: [{seat_i}]") 
  
 
