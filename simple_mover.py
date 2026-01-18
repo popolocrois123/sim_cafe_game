@@ -1,6 +1,7 @@
 import pyglet
 from setting import *
 from loguru import logger
+import random
 
 class SimpleMover:
 
@@ -36,8 +37,13 @@ class SimpleMover:
         #     batch=batch
         # )
 
-        # [宿題]　ヒーロー画像をスプライトにいれる
-        self.sprite_sheet = pyglet.image.load('Hero.png')  # 12マスのPNG画像
+        # [宿題]　mapからキャラチップフォルダの読み込み
+        self.chara_file = self.map.chara_file
+        # キャラをランダムに選ぶ
+        self.chara = random.choice(self.chara_file)
+        # ヒーロー画像をスプライトにいれる
+        self.sprite_sheet = pyglet.image.load(self.chara)  # 12マスのPNG画像
+        # self.sprite_sheet = pyglet.image.load('Hero.png')  # 12マスのPNG画像
         # アニメーション設定
         self.get_frame_sprites()
         # キャラクターの初期設定
@@ -75,6 +81,9 @@ class SimpleMover:
 
         # 向き変更の時間
         self.elapsed = 0
+
+        # キャラの食事時間
+        self.STAY_DURATION = random.randint(5, 10)     
 
 
     # 目標値が定まった状態でその座標に移動開始する

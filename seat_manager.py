@@ -1,6 +1,7 @@
 import pyglet
 from loguru import logger
 from setting import *
+import random
 
 class SeatManager():
     def __init__(self, parent, map):
@@ -32,6 +33,7 @@ class SeatManager():
 
         self.count_seated = 0
 
+        
 
 
     def update(self, dt):
@@ -116,6 +118,7 @@ class SeatManager():
     def eating(self, dt):
         for cu in self.customers:
             if cu.state == "seated":
+                self.STAY_DURATION = cu.STAY_DURATION
                 cu.stay_timer += dt
 
                 for idx, cu_seatnum in enumerate(self.seat_queue):
@@ -132,8 +135,7 @@ class SeatManager():
 
                 # logger.info(f"【食事時間] キャラID：{cu.id} stay_timer: {cu.stay_timer}") 
 
-
-                if cu.stay_timer >= STAY_DURATION:
+                if cu.stay_timer >= self.STAY_DURATION:
                     x, y = self.map.exit_pos
                     y = self.real_grid_y - (y + 1)
                     cu.setup_new_target(x, y)

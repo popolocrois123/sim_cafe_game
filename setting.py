@@ -5,10 +5,10 @@ MAX_LOGS = 100
 
 # 顧客の飲食時間
 ## 宿題！
-STAY_DURATION = 10.0
+# STAY_DURATION = 0
 
 # 顧客生成の上限
-MAX_CUSTOMERS = 50
+MAX_CUSTOMERS = 20
 
 # 新規顧客の生成間隔
 ## 顧客生成の間隔のずれを作る
@@ -29,7 +29,7 @@ MAP_DATA = [
     'B................WB',
     'B.STS.STS........WB',
     'B................WB',
-    'B.STS.STS........WB',
+    'B.STS.STS.........B',
     'B.................B',
     'B.STS.STS.........B',
     'B.................B',

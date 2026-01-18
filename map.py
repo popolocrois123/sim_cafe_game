@@ -1,6 +1,7 @@
 import pyglet
 import queue
 from loguru import logger
+import glob
 
 
 class Map():
@@ -50,6 +51,10 @@ class Map():
 
         # self.log("マップの初期化完了しました。")
         # print(self.general_costomer_area)
+        
+        # 宿題
+        # キャラチップのフォルダ読み込む
+        self.chara_file = glob.glob("./characters/*")
 
 
     # セルの対応文字ごとにいろと役割を設定する（例：Bはグレーなど）
