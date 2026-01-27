@@ -83,7 +83,9 @@ class SimpleMover:
         self.elapsed = 0
 
         # キャラの食事時間
-        self.STAY_DURATION = random.randint(5, 10)     
+        self.STAY_DURATION = STAY_DURATION + random.randint(3, 10)  
+        
+        # self.STAY_DURATION = random.randint(5, 10)     
 
 
     # 目標値が定まった状態でその座標に移動開始する

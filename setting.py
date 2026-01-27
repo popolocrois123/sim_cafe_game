@@ -5,7 +5,7 @@ MAX_LOGS = 100
 
 # 顧客の飲食時間
 ## 宿題！
-# STAY_DURATION = 0
+STAY_DURATION = 2
 
 # 顧客生成の上限
 MAX_CUSTOMERS = 20
@@ -29,9 +29,9 @@ MAP_DATA = [
     'B................WB',
     'B.STS.STS........WB',
     'B................WB',
-    'B.STS.STS.........B',
-    'B.................B',
-    'B.STS.STS.........B',
-    'B.................B',
+    'B.STS.STS........WB',
+    'B................WB',
+    'B.STS.STS........WB',
+    'B................WB',
     'BBBBBBBBBBBBBBBBBBB'
 ]
