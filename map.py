@@ -137,12 +137,12 @@ class Map():
                     # [宿題]
                     self.table_queue.append((x, y))
 
-                # キャラクター
-                elif cell == "C":
-                    rect = pyglet.shapes.Rectangle(pixel_x, pixel_y,  self.cell_size, 
-                                                  self.cell_size, color=(255, 0, 0), 
-                                                   batch=self.batch)
-                    self.tiles.append(rect)
+                # # キャラクター
+                # elif cell == "C":
+                #     rect = pyglet.shapes.Rectangle(pixel_x, pixel_y,  self.cell_size, 
+                #                                   self.cell_size, color=(255, 0, 0), 
+                #                                    batch=self.batch)
+                #     self.tiles.append(rect)
 
                 # 席
                 elif cell == "S":

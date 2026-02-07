@@ -7,6 +7,7 @@ import time
 from customer import Customer
 from customer_manager import CustomerManager
 from seat_manager import SeatManager
+from time_manager import TimeManager
 from loguru import logger
 import sys
 
@@ -45,6 +46,10 @@ class Main():
         # windowの設定
         self.window = pyglet.window.Window(width=self.width, height=self.height,
                                             caption="rpg", resizable=True)
+        
+        # [練習]時計の描写
+        self.fps_display = pyglet.window.FPSDisplay(self.window)
+
         self.window.set_location(x=400, y=200)
         self.window.set_minimum_size(width=500, height=500)
 
@@ -75,6 +80,9 @@ class Main():
         # SeatManagerクラスの呼び出し
         self.seat_manager = SeatManager(self, self.map)
 
+        # TimeManagerクラスの呼び出し
+        self.time_manager = TimeManager(self)
+
         # mainでデバッグを使う方法
         logger.debug("mainの初期化完了しました。")
 
@@ -82,16 +90,21 @@ class Main():
         # Heroの操作用
         self.window.push_handlers(self)
 
-        pyglet.clock.schedule_interval(self.update, 1/30)
+        
+        pyglet.clock.schedule_interval(self.update, 1/60)
+
 
 
     def on_draw(self):
         self.window.clear()
         self.batch.draw()
+        self.time_manager.timer_label.draw()
+
 
     def update(self, dt: float):
         self.customer_manager.update(dt)
         self.seat_manager.update(dt)
+        self.time_manager.update(dt)
         
 
 if __name__ == "__main__":
