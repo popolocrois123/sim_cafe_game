@@ -9,6 +9,7 @@ from customer_manager import CustomerManager
 from seat_manager import SeatManager
 from time_manager import TimeManager
 from loguru import logger
+import time
 import sys
 
 
@@ -81,7 +82,9 @@ class Main():
         self.seat_manager = SeatManager(self, self.map)
 
         # TimeManagerクラスの呼び出し
-        self.time_manager = TimeManager(self)
+        # 開始時間を記録
+        self.start_time = time.time()
+        self.time_manager = TimeManager(self, self.start_time)
 
         # mainでデバッグを使う方法
         logger.debug("mainの初期化完了しました。")
