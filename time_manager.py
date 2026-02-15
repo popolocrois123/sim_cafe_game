@@ -38,13 +38,23 @@ class TimeManager:
         self.now_difference = 0
         self.timer_label.text = f"{self.hour}時"
 
+        # 授業
+        self.time_count = 0
+
         # self.difference = self.end_time - self.start_time
         
     def update(self, dt):
+        # self.timer_label.text = f"dt: {int(dt * 60 * 60)}"
+        self.time_count += int(dt * 60) * 10
+        hours = self.time_count // 3600
+        minutes =  (self.time_count % 3600) // 60
+
+        self.timer_label.text = f"dt: {hours:02}:{minutes:02}"
         # 経過時間の計測
-        self.end_time = time.time()
-        self.difference = self.end_time - self.start_time
-        self.count_timer(self.difference)
+        # self.end_time = time.time()
+        # self.difference = self.end_time - self.start_time
+        # self.count_timer(self.difference)
+        
 
         # logger.info(f"end_time: {self.end_time}")
         # self.difference = self.end_time - self.start_time
