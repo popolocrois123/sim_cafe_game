@@ -48,8 +48,6 @@ class Main():
         self.window = pyglet.window.Window(width=self.width, height=self.height,
                                             caption="rpg", resizable=True)
         
-        # [練習]時計の描写
-        self.fps_display = pyglet.window.FPSDisplay(self.window)
 
         self.window.set_location(x=400, y=200)
         self.window.set_minimum_size(width=500, height=500)
@@ -75,16 +73,14 @@ class Main():
         # # playerのスタート位置の呼び出し
         # px, py = self.map.player_start
 
+        # TimeManagerクラスの呼び出し
+        self.time_manager = TimeManager(self)
+
         # CustomerMageクラスの呼び出し
         self.customer_manager = CustomerManager(self, MAP_DATA, self.map)
         
         # SeatManagerクラスの呼び出し
         self.seat_manager = SeatManager(self, self.map)
-
-        # TimeManagerクラスの呼び出し
-        # 開始時間を記録
-        self.start_time = time.time()
-        self.time_manager = TimeManager(self, self.start_time)
 
         # mainでデバッグを使う方法
         logger.debug("mainの初期化完了しました。")

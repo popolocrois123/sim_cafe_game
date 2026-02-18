@@ -51,9 +51,24 @@ class CustomerManager:
         self.wait_pos_in_use = [False] * len(self.wait_chair)
         # 新規顧客の生成
         self.spawn_timer = 0.0
+
+        # # time_managerのよびだし
+        # self.hours = self.parent.time_manager.hours
+        
+        # # [宿題]
+        # タイマーの時間の取得
+        # self.hours = self.parent.time_manager.hours
+        # logger.info(f"時計の確認{self.hours}")
+
         # 顧客生成間隔（s）
+        self.hours = 0
+        self.result_crowd = 0
+        self.crowd = CUSTOMER_CROWD
         self.spawn_interval = SPAWN_TIME # 5秒ごとに新しい顧客を生成
-        # self.max_customers = 7   # 任意：上限を設定したい場合
+        # self.spawn_interval = 1
+
+        # self.spawn_interval = self.customer_crowd() # 時間ごとに客の混み具合が違う
+
 
         # 生成される顧客数の上限
         self.max_customers = MAX_CUSTOMERS  # 任意：上限を設定したい場合
@@ -100,7 +115,20 @@ class CustomerManager:
         if self.spawn_timer >= self.spawn_interval:
             self.spawn_timer = 0.0
             if len(self.customers) <= self.max_customers:
+                
+                self.hours = self.parent.time_manager.hours
+                if self.customer_crowd():
+                    self.spawn_interval = self.customer_crowd()
                 self.spawn_customer()
+                
+                # if self.customer_crowd(self.hours):
+                #     self.spawn_interval = self.customer_crowd(self.hours)
+                logger.info(f"[生成時間の確認] 今の時間：{self.hours}, 生成間隔の時間: {self.spawn_interval}")
+                
+            else:
+                pass
+        else:
+            pass
 
 
     # 顧客生成
@@ -129,6 +157,15 @@ class CustomerManager:
 
         # # そのインスタンスをリストの中にいれて管理する
         self.customers.append(simple_mover)
+
+        # # [宿題]
+        # # タイマーの時間の取得
+        # self.hours = self.parent.time_manager.hours
+        # logger.info(f"時計の確認{self.hours}")
+
+        # # [客の混み具合の変更]
+        # self.spawn_interval = self.customer_crowd() # 時間ごとに客の混み具合が違う
+
 
 
 
@@ -252,3 +289,54 @@ class CustomerManager:
                         customer.state = "moving_to_wait"
 
                         break
+    
+    # [宿題]
+    # 時間ごとの顧客の生成間隔
+    def customer_crowd(self):
+        # if 0 <= hours < 2:
+        #     result = 0.5
+        # elif 2 <= hours < 8:
+        #     result = 3
+        # elif 8 <= hours < 10:
+        #     result = 0.5
+        # elif 10 <= hours < 13:
+        #     result = 3
+        # elif 13 <= hours < 15:
+        #     result = 0.5
+        # else:
+        #     result = 3
+        # return result
+    
+        for id, val in self.crowd.items():
+            if id == self.hours:
+                logger.info(f"index: {id}, 時間：{self.hours}")
+                if val == "c":
+                    self.result_crowd = 0.5
+                elif val == "e":
+                    self.result_crowd = 3
+                logger.info(f"{id}時：{val}")
+                print(id, val, self.hours, self.result_crowd)
+                return self.result_crowd
+            else:
+                pass
+            
+            
+
+
+        # for idx, val in CUSTOMER_CROWD.items():
+        #     if hours == idx:
+        #         logger.info(f"客の混み具合 {hours}時: 辞書の時間：{idx}, 客の生成間隔(s){val}")
+        #         self.result_crowd = val
+        #     else:
+        #         break
+        # return self.result_crowd
+
+        # for idx, val in CUSTOMER_CROWD.items():
+            #     return 
+            # if val == EMPTY:
+            #     logger.info(f"客の混み具合 {idx}時: 客の数{val}")
+            #     return EMPTY
+            # elif val == CROWD:
+            #     logger.info(f"客の混み具合 {idx}時: 客の数{val}")
+            #     return CROWD
+
