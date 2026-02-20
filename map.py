@@ -52,7 +52,6 @@ class Map():
         # self.log("マップの初期化完了しました。")
         # print(self.general_costomer_area)
         
-        # 宿題
         # キャラチップのフォルダ読み込む
         self.chara_file = glob.glob("./characters/*")
 
@@ -130,11 +129,19 @@ class Map():
 
                 # テーブル
                 elif cell == "T":
-                    rect = pyglet.shapes.Rectangle(pixel_x, pixel_y,  self.cell_size, 
-                                                   self.cell_size, color=(255, 255, 0), 
-                                                   batch=self.batch)
-                    self.tiles.append(rect)
-                    # [宿題]
+                    # rect = pyglet.shapes.Rectangle(pixel_x, pixel_y,  self.cell_size, 
+                    #                                self.cell_size, color=(255, 255, 0), 
+                    #                                batch=self.batch)
+                    # 画像を読み込む
+                    table_image = pyglet.resource.image("table.png")
+                    table =  pyglet.sprite.Sprite(table_image,  # 読み込んだ画像
+                                        pixel_x,        # X座標
+                                        pixel_y-10,         # Y座標
+                                        batch=self.batch
+                                    )
+                    table.scale_x = 0.08      # 大きさの比率
+                    table.scale_y = 0.11
+                    self.tiles.append(table)
                     self.table_queue.append((x, y))
 
                 # # キャラクター
@@ -149,7 +156,25 @@ class Map():
                     rect = pyglet.shapes.Rectangle(pixel_x, pixel_y,  self.cell_size, 
                                                    self.cell_size, color=(0, 100, 255), 
                                                    batch=self.batch)
-                    self.tiles.append(rect)
+                    
+                    # 画像を読み込む
+                    chair_image = pyglet.resource.image("chair.png")
+                    chair =  pyglet.sprite.Sprite(chair_image,  # 読み込んだ画像
+                                        pixel_x,        # X座標
+                                        pixel_y-20,         # Y座標
+                                        batch=self.batch
+                                    )
+                    
+                    # 椅子の場所によって椅子の向きが違う
+                    if x == 2 or x == 6:
+                        chair.scale_x = -0.08
+                        chair.x += chair.width
+                    else:
+                        chair.scale_x = 0.08      # 大きさの比率
+                    chair.scale_y = 0.11
+
+
+                    self.tiles.append(chair)
                     # print(f"元のxy{x, y}")
                     # y = len(self.map_data) - (y + 1)
                     self.seat_queue.append((x, y))

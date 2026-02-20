@@ -278,7 +278,7 @@ class CustomerManager:
                 elif val == "e":
                     self.result_crowd = 3
                 logger.info(f"{id}時：{val}")
-                print(id, val, self.hours, self.result_crowd)
+                # print(id, val, self.hours, self.result_crowd)
                 return self.result_crowd
             else:
                 pass
