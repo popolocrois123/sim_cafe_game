@@ -71,6 +71,10 @@ class CustomerManager:
 
         self.count = 1
 
+        # [宿題]
+        # 店内にいる客を数えて混み具合の表示に利用
+        self.crowd_count = 0
+
     # 初期顧客の生成
     def setup_initial_customers(self):
         # ⭐ 初期顧客を spawn_customer() 経由で生成
@@ -162,6 +166,8 @@ class CustomerManager:
 
                     # logger.info(f"中の客の数(増える場合){self.inside_customer_num}")
 
+                    
+
 
     def move_to_entrance(self, dt):
         for cu in self.customers:
@@ -171,6 +177,10 @@ class CustomerManager:
                     cu.state = "arrive"
                     logger.info(f"[入り口に移動]キャラID：{cu.id} state: {cu.state}")
                     cu.reached = False
+
+                    # [宿題]
+                    # 客がレストランにいる数で混み具合を確認
+                    self.crowd_count += 1
 
 
 
@@ -241,7 +251,13 @@ class CustomerManager:
                 if hasattr(cu, 'sprite') and cu.sprite:
                     cu.sprite.delete()
 
+                # [宿題]
+                # 客のカウントをへらす
+                self.crowd_count -= 1
+                
                 self.customers.pop(i)
+
+
 
 
     def chack_waiting(self):
@@ -274,9 +290,9 @@ class CustomerManager:
             if id == self.hours:
                 logger.info(f"index: {id}, 時間：{self.hours}")
                 if val == "c":
-                    self.result_crowd = 0.5
+                    self.result_crowd = CROWD_GENERATE
                 elif val == "e":
-                    self.result_crowd = 3
+                    self.result_crowd = EMPTY_GENERATE
                 logger.info(f"{id}時：{val}")
                 # print(id, val, self.hours, self.result_crowd)
                 return self.result_crowd

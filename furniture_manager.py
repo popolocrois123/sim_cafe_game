@@ -8,4 +8,9 @@ from loguru import logger
 
 class FurnitureManager:
     def __init__(self, parent):
-        pass
+        self.parent = parent
+        
+        # 机
+        # self.table = pyglet.resource.image("table.png")
+
+        # 椅子

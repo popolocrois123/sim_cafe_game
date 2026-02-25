@@ -8,6 +8,8 @@ from customer import Customer
 from customer_manager import CustomerManager
 from seat_manager import SeatManager
 from time_manager import TimeManager
+from crowd_manager import CrowdManager
+
 from loguru import logger
 import time
 import sys
@@ -82,6 +84,10 @@ class Main():
         # SeatManagerクラスの呼び出し
         self.seat_manager = SeatManager(self, self.map)
 
+        # [宿題]
+        # CrowdManagerクラスの呼び出し
+        self.crowd_manager = CrowdManager(self)
+
         # mainでデバッグを使う方法
         logger.debug("mainの初期化完了しました。")
 
@@ -98,12 +104,14 @@ class Main():
         self.window.clear()
         self.batch.draw()
         self.time_manager.timer_label.draw()
+        self.crowd_manager.crowd_label.draw()
 
 
     def update(self, dt: float):
         self.customer_manager.update(dt)
         self.seat_manager.update(dt)
         self.time_manager.update(dt)
+        self.crowd_manager.update(dt)
         
 
 if __name__ == "__main__":

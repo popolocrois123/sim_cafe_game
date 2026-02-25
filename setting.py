@@ -14,17 +14,28 @@ MAX_CUSTOMERS = 50
 second_random = random.random()
 SPAWN_TIME = (3 / MAX_CUSTOMERS) + second_random
 
-# [宿題]
 # 生成数の時間ごとの変動の辞書
-EMPTY = 3
-CROWD = 0.5
-CUSTOMER_CROWD = {0: "c", 2: "e", 8: "c", 11: "e", 12: "c"
-                  ,16: "e", 17: "c", 20: "e"}
+EMPTY_GENERATE = 3
+CROWD_GENERATE = 0.5
+CUSTOMER_CROWD = {0: "c", 1: "e", 2: "e", 3: "e", 4: "e", 5: "c",
+                  6: "c", 7: "c", 8: "c", 9: "e", 10:"e", 11: "e",
+                  12: "c", 13: "c", 14: "e", 15: "e", 16: "e", 
+                  17: "c", 18: "c", 19: "c", 20: "e", 21: "c", 22: "c",
+                  23: "c"}
 
+# [宿題]
+# 店内が空いているか普通か混んでいるかの目安の客数
+# 混んでいる
+AVAILABLE = 5
+LIMITED_SEATING = 10
+FULL_CUSTOMER = 20
 
 
 # 時計ラベルの位置
 TIMER_GRID = (3, 3)
+
+# 混み具合のラベルの位置
+CROWD_GRID = (10, 3)
 
 
 # lofファイルの読み込み

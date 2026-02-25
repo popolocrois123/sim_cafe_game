@@ -37,4 +37,4 @@ class TimeManager:
             self.hours = self.hours % 24
         minutes =  (self.time_count % 3600) // 60
 
-        self.timer_label.text = f"タイマー {self.hours:02}:{minutes:02}"
+        self.timer_label.text = f"時刻 {self.hours:02}:{minutes:02}"
