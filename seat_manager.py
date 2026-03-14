@@ -33,6 +33,12 @@ class SeatManager():
 
         self.count_seated = 0
 
+        # --- 統計情報 ---
+        # 席についている客の数を数える、空き率の計算のため
+        self.s_chair = 0
+
+
+
         
 
 
@@ -48,6 +54,18 @@ class SeatManager():
 
         # 客が出口まで移動する
         self.move_to_exit(dt)
+
+        # 統計情報の更新
+        # 空き率の計算
+        seat_crowd_rate = (self.s_chair / len(self.parent.map.seat_queue)) * 100
+        # logger.info(f"座っている割合：{seat_crowd_rate}")
+        # logger.info(f"席の数：{len(self.parent.map.seat_queue)}")
+
+        self.parent.map.statistic_crowd.text = f"混み率： {int(seat_crowd_rate)}%"
+        # logger.info(f"座っている割合：{self.parent.map.statistic_crowd.text}")
+
+
+        
 
 
     def assign_seat(self):
@@ -92,7 +110,9 @@ class SeatManager():
                         # 案内されたら色を変える　青に
                         # cu.sprite.color=(150, 125, 255)
                         # self.parent.customer_manager.inside_customer_num -= 1
- 
+                                            # # 統計情報
+                        
+    
 
                         break
                 # pass
@@ -111,6 +131,15 @@ class SeatManager():
                     logger.info(f"[席に移動]キャラID：{cu.id} state: {cu.state}")
 
                     cu.reached = False
+                    # 統計情報    
+                    # 席についている客の数
+                    self.s_chair += 1
+
+
+
+                    # # 空き率の計算
+                    # seat_crowd_rate = (self.s_chair / len(self.parent.map.seat_queue)) / 100
+                    # self.parent.map.statistic_crowd.text = f"混み率： {int(seat_crowd_rate)}%"
                 # cu.state = "seated"
                 
     
@@ -118,6 +147,7 @@ class SeatManager():
     def eating(self, dt):
         for cu in self.customers:
             if cu.state == "seated":
+
                 self.STAY_DURATION = cu.STAY_DURATION
                 cu.stay_timer += dt
 
@@ -152,6 +182,8 @@ class SeatManager():
                     # logger.info(f"【食事設定時間] キャラID：{cu.id} 設定時間: {STAY_DURATION}") 
 
                     logger.info(f"[出口にアサイン]キャラID：{cu.id} state: {cu.state}")
+                    # 統計情報
+                    self.s_chair -= 1
 
 
                     # 変更
@@ -178,6 +210,7 @@ class SeatManager():
                 if cu.reached:
                     cu.state = "exited"
                     logger.info(f"[出口に移動]キャラID：{cu.id} state: {cu.state}")
+                    
 
                     
 

@@ -45,16 +45,25 @@ class CrowdManager:
         #         2: self.p_02
         #         }
 
+        # match num:
+        #     case n if n <= AVAILABLE:
+        #         return self.p_00()
+        #     case n if AVAILABLE < n <= LIMITED_SEATING:
+        #         return self.p_00()
+        #     case n if LIMITED_SEATING < n <= FULL_CUSTOMER:
+        #         return self.p_01()
+        #     case n if FULL_CUSTOMER < n:
+        #         return self.p_02()
+            
         match num:
             case n if n <= AVAILABLE:
-                return self.p_00()
+                return "空席"
             case n if AVAILABLE < n <= LIMITED_SEATING:
-                return self.p_00()
+                return "若干空き"
             case n if LIMITED_SEATING < n <= FULL_CUSTOMER:
-                return self.p_01()
+                return "満席"
             case n if FULL_CUSTOMER < n:
-                return self.p_02()
-            
+                return "満席"
 
 
     def update(self, dt):

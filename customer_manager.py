@@ -12,7 +12,7 @@ class CustomerManager:
     def __init__(self, parent, map_data, map, num_customers=10):
         self.parent = parent
 
-        self.batch = self.parent.batch
+        self.game_screen_batch = self.parent.game_screen_batch
 
         # map_dataの取得
         self.map_data = map_data
@@ -71,9 +71,22 @@ class CustomerManager:
 
         self.count = 1
 
-        # [宿題]
         # 店内にいる客を数えて混み具合の表示に利用
         self.crowd_count = 0
+
+        # [宿題]
+        # 統計情報の表示
+        # 混み率
+        # self.rate_crowd
+        # self.statistic_crowd = pyglet.text.Label(self.rate_crowd, font_name="Times New Roman", 
+        #                                      font_size=20, x=pixel_x, y=pixel_y,
+        #                                      anchor_y="bottom")
+        # # 時計
+        # self.s_time = 0.0
+        # self.statistic_time = pyglet.text.Label(str(self.s_time), font_name="Times New Roman", 
+        #                                      font_size=20, x=pixel_x, y=pixel_y,
+        #                                      anchor_y="bottom")
+        
 
     # 初期顧客の生成
     def setup_initial_customers(self):
@@ -140,7 +153,7 @@ class CustomerManager:
         # 生成する直後は動かないのでスタート位置とゴール位置を同じにする
         simple_mover = SimpleMover(grid, grid,
                                     state, self.map,
-                                    batch=self.batch)
+                                    batch=self.game_screen_batch)
         logger.info(f"キャラID：{simple_mover.id}が生成されました。 state: {state}")
         
 

@@ -9,22 +9,21 @@ class TimeManager:
     def __init__(self, parent):
         self.parent = parent
         # 時計ラベルの位置の取得
-        grid_x, grid_y = TIMER_GRID
         # x, y = grid_x, grid_y
-        x, y = self.parent.map.to_pyglet_x_y(grid_x, grid_y)
-        pixel_x = x * CELL_SIZE
-        pixel_y = y * CELL_SIZE
+        # x, y = self.parent.map.to_pyglet_x_y(TIMER_GRID_X, TIMER_GRID_Y)
+        # pixel_x = x * CELL_SIZE
+        # pixel_y = y * CELL_SIZE
 
-        self.timer_time = 0.0
+        # self.timer_time = 0.0
         # 時計の表示時間
-        self.clock = "00時"
+        # self.clock = "00時"
         # 0時から24時までの時間計算用
         self.hours = 0
 
-        # 時計のラベルを作成
-        self.timer_label = pyglet.text.Label(str(self.timer_time), font_name="Times New Roman", 
-                                             font_size=20, x=pixel_x, y=pixel_y,
-                                             anchor_y="bottom")
+        
+        # self.timer_label = pyglet.text.Label(str(self.timer_time), font_name="Times New Roman", 
+        #                                      font_size=20, x=pixel_x, y=pixel_y,
+        #                                      anchor_y="bottom")
     
 
         # 授業
@@ -37,4 +36,4 @@ class TimeManager:
             self.hours = self.hours % 24
         minutes =  (self.time_count % 3600) // 60
 
-        self.timer_label.text = f"時刻 {self.hours:02}:{minutes:02}"
+        self.parent.map.statistic_time.text = f"時刻 {self.hours:02}:{minutes:02}"

@@ -17,6 +17,7 @@ SPAWN_TIME = (3 / MAX_CUSTOMERS) + second_random
 # 生成数の時間ごとの変動の辞書
 EMPTY_GENERATE = 3
 CROWD_GENERATE = 0.5
+
 CUSTOMER_CROWD = {0: "c", 1: "e", 2: "e", 3: "e", 4: "e", 5: "c",
                   6: "c", 7: "c", 8: "c", 9: "e", 10:"e", 11: "e",
                   12: "c", 13: "c", 14: "e", 15: "e", 16: "e", 
@@ -32,7 +33,7 @@ FULL_CUSTOMER = 20
 
 
 # 時計ラベルの位置
-TIMER_GRID = (3, 3)
+TIMER_GRID_X, TIMER_GRID_Y = (3, 3)
 
 # 混み具合のラベルの位置
 CROWD_GRID = (10, 3)
@@ -40,6 +41,25 @@ CROWD_GRID = (10, 3)
 
 # lofファイルの読み込み
 LOG_PATH = "customer_lifecycle.log"
+
+# ------------------------------------------------
+# --- シュミレーション画面の要素 ---
+# B: 壁（キャラが通れない）
+# .: 何もない場所（移動可能）
+# G: キャラ生成場所
+# N: 生成場所の端
+# E: 入り口
+# O: 出口
+# W: キャラの待機場所
+# T: テーブル
+# S: 席
+
+# --- 統計情報の要素 ---
+# I: 統計画面の何もない場所
+# H: 時間
+# C: 混み具合
+# 
+# -------------------------------------------------
 MAP_DATA = [
     'BBBBBBBBBBBBBBBBBBB',
     'NGGGGGGGGGGGGGGGGGN',
@@ -55,5 +75,18 @@ MAP_DATA = [
     'B................WB',
     'B.STS.STS........WB',
     'B................WB',
-    'BBBBBBBBBBBBBBBBBBB'
+    'BBBBBBBBBBBBBBBBBBB',
+    'IIIIIIIIIIIIIIIIIII',
+    'IIIIIIIIIIIIIIIIIII',
+    'IIIIIHIIIIIIIIIIIII',
+    'IIIIIIIIIIIIIIIIIII',
+    'IIIIICIIIIIIIIIIIII',
+    'IIIIIIIIIIIIIIIIIII',
+    'IIIIIIIIIIIIIIIIIII',
+    'IIIIIIIIIIIIIIIIIII',
+    'IIIIIIIIIIIIIIIIIII',
+    'IIIIIIIIIIIIIIIIIII',
+    'IIIIIIIIIIIIIIIIIII',
+    'IIIIIIIIIIIIIIIIIII',
+    'IIIIIIIIIIIIIIIIIII'
 ]

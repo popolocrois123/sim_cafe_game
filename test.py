@@ -171,3 +171,155 @@
 # -----------------------------------------------------
 
 
+
+# -----------------------------------------------------
+#  SQLiteの練習
+# -----------------------------------------------------
+
+# import sqlite3
+
+# # ファイルに保存する場合
+# conn = sqlite3.connect('test.db')
+
+# # カーソルを作る　## カーソルはSQLを実行するための窓口
+# cur = conn.cursor()
+
+# # テーブルを作成する
+# cur.execute('''
+# CREATE TABLE IF NOT EXISTS users (
+#     id INTEGER PRIMARY KEY,
+#     name TEXT,
+#     age INTEGER
+# )
+# ''')
+
+# # データを挿入する
+# cur.execute("INSERT INTO users (name, age) VALUES (?, ?)", ("yamada", 25))
+# cur.execute("INSERT INTO users (name, age) VALUES (?, ?)", ("hayasi", 30))
+
+# # 変更を保存
+# conn.commit()
+
+# # データを取得
+# cur.execute("SELECT * FROM users")
+# rows = cur.fetchall()  # 全件取得
+
+# for row in rows:
+#     print(row)
+    
+# # データベースを閉じる
+# conn.close()
+
+
+# withを使った例
+
+# import sqlite3
+
+# # with文で接続すると自動でcommitとcloseがされる
+# with sqlite3.connect('my_database.db') as conn:
+#     cur = conn.cursor()
+
+#     # テーブル作成
+#     cur.execute('''
+#     CREATE TABLE IF NOT EXISTS users (
+#         id INTEGER PRIMARY KEY,
+#         name TEXT,
+#         age INTEGER
+#     )
+#     ''')
+
+#     # データを挿入
+#     cur.execute("INSERT INTO users (name, age) VALUES (?, ?)", ("tanaka", 25))
+#     cur.execute("INSERT INTO users (name, age) VALUES (?, ?)", ("hayasi", 30))
+
+#     # データを取得して表示
+#     cur.execute("SELECT * FROM users")
+#     rows = cur.fetchall()
+#     for row in rows:
+#         print(row)
+
+# ここで自動的にconn.commit()とconn.close()が行われる
+
+
+# -----------------------------------------------------
+#  SQLAlchemyの練習
+# -----------------------------------------------------
+
+# from sqlalchemy import Column, Integer, String
+# from sqlalchemy.orm import declarative_base
+# from sqlalchemy import create_engine   # ← ここを追加
+
+# # ORM用の規定クラスの作成
+# Base = declarative_base()
+
+# class User(Base):
+#     __tablename__ = 'users'
+#     id = Column(Integer, primary_key=True)
+#     name = Column(String)
+#     age = Column(Integer)
+
+# # ------------------------------
+# # ここからDB接続してテーブル作成
+# engine = create_engine("sqlite:///example.db", echo=True)  # DB作成・接続
+# Base.metadata.create_all(engine)  # 定義したテーブルをDBに作る
+
+
+from sqlalchemy import create_engine, Column, Integer, String
+from sqlalchemy.orm import declarative_base, sessionmaker
+
+# データベース接続 (SQLiteを使用)
+engine = create_engine('sqlite:///mydatabase.db', echo=True)
+
+# テーブル定義用のベースクラス
+Base = declarative_base()
+
+# ユーザーテーブルを定義
+class User(Base):
+    __tablename__ = 'users'
+    
+    id = Column(Integer, primary_key=True)   # 主キー
+    name = Column(String, nullable=False)    # 名前
+    age = Column(Integer)                     # 年齢
+
+    def __repr__(self):
+        return f"<User(name='{self.name}', age={self.age})>"
+
+# テーブルを作成
+Base.metadata.create_all(engine)
+
+
+
+
+
+
+
+# from sqlalchemy import create_engine, Column, Integer, String
+# from sqlalchemy.orm import declarative_base, sessionmaker
+
+# # 1. データベースに接続
+# engine = create_engine('sqlite:///simple.db', echo=True)
+
+# # 2. テーブルのベースを作る
+# Base = declarative_base()
+
+# # 3. テーブル定義
+# class User(Base):
+#     __tablename__ = 'users'
+#     id = Column(Integer, primary_key=True)
+#     name = Column(String)
+
+
+# # 4. テーブルを作成
+# Base.metadata.create_all(engine)
+
+# # 5. セッション作成
+# Session = sessionmaker(bind=engine)
+# session = Session()
+
+# # 6. データ追加
+# session.add(User(name="Alice"))
+# session.commit()
+
+# # 7. データ取得
+# user = session.query(User).first()
+# print(user.name)

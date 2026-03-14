@@ -8,7 +8,7 @@ class Map():
     def __init__(self, map_data, cell_size, batch, height):
         self.map_data = map_data
         self.cell_size = cell_size
-        self.batch = batch
+        self.game_screen_batch = batch
         self.height = height
 
 
@@ -41,9 +41,19 @@ class Map():
         # playerのスタート位置
         self.player_start = (0, 1)
 
+        # --- 統計情報について ---
+        # 時間の表示についてH
+        self.s_time = 0.0
+        # 混み率
+        self.rate_crowd = 0.0
+
+        # --- mapを読み込み ---
+
         self.load_map()
 
         # # 待機場所がマップ座標とpygletの座標系と原点が違うのでリバースしている
+        # [宿題]
+    
         # logger.debug(f"wait_queueの確認（リバース変更前）{self.wait_queue}")
         self.wait_queue.reverse()
         
@@ -54,6 +64,8 @@ class Map():
         
         # キャラチップのフォルダ読み込む
         self.chara_file = glob.glob("./characters/*")
+
+
 
 
     # セルの対応文字ごとにいろと役割を設定する（例：Bはグレーなど）
@@ -78,7 +90,7 @@ class Map():
                 if cell == "B":
                     rect = pyglet.shapes.Rectangle(pixel_x, pixel_y, self.cell_size, 
                                                    self.cell_size, color=(64, 64, 64), 
-                                                   batch=self.batch)
+                                                   batch=self.game_screen_batch)
                     self.tiles.append(rect)
 
                 # 何もない場所（移動可能）
@@ -86,7 +98,7 @@ class Map():
                     pass
                 # elif cell == "P":
                 #     rect = pyglet.shapes.Rectangle(pixel_x, pixel_y,  self.cell_size, self.cell_size, 
-                #                                    color=(255, 0, 0), batch=self.batch)
+                #                                    color=(255, 0, 0), batch=self.game_screen_batch)
                 #     self.player_start = (x, y)
                 #     # print(f"{cell}: {pixel_x}, {pixel_y}")
                 #     self.log(f"{cell}: {pixel_x}, {pixel_y}")
@@ -95,11 +107,11 @@ class Map():
                 elif cell == "G":
                     self.general_costomer_area.append((x, y))
 
-                # 入り口
+                # 生成場所の端
                 elif cell == "N":
                     rect = pyglet.shapes.Rectangle(pixel_x, pixel_y,  self.cell_size, 
                                                    self.cell_size, color=(0, 255, 255), 
-                                                   batch=self.batch)
+                                                   batch=self.game_screen_batch)
                     self.tiles.append(rect)
 
                 # 入り口
@@ -117,7 +129,7 @@ class Map():
                 elif cell == "W":
                     rect = pyglet.shapes.Rectangle(pixel_x, pixel_y,  self.cell_size, 
                                                    self.cell_size, color=(0, 0, 255), 
-                                                   batch=self.batch)
+                                                   batch=self.game_screen_batch)
                     self.tiles.append(rect)
                     # print(f"もとの待機場所xy{x, y}")
                     # y = len(self.map_data) - (y + 1)
@@ -131,13 +143,13 @@ class Map():
                 elif cell == "T":
                     # rect = pyglet.shapes.Rectangle(pixel_x, pixel_y,  self.cell_size, 
                     #                                self.cell_size, color=(255, 255, 0), 
-                    #                                batch=self.batch)
+                    #                                batch=self.game_screen_batch)
                     # 画像を読み込む
                     table_image = pyglet.resource.image("table.png")
                     table =  pyglet.sprite.Sprite(table_image,  # 読み込んだ画像
                                         pixel_x,        # X座標
                                         pixel_y-10,         # Y座標
-                                        batch=self.batch
+                                        batch=self.game_screen_batch
                                     )
                     table.scale_x = 0.08      # 大きさの比率
                     table.scale_y = 0.11
@@ -148,21 +160,21 @@ class Map():
                 # elif cell == "C":
                 #     rect = pyglet.shapes.Rectangle(pixel_x, pixel_y,  self.cell_size, 
                 #                                   self.cell_size, color=(255, 0, 0), 
-                #                                    batch=self.batch)
+                #                                    batch=self.game_screen_batch)
                 #     self.tiles.append(rect)
 
                 # 席
                 elif cell == "S":
-                    rect = pyglet.shapes.Rectangle(pixel_x, pixel_y,  self.cell_size, 
-                                                   self.cell_size, color=(0, 100, 255), 
-                                                   batch=self.batch)
+                    # rect = pyglet.shapes.Rectangle(pixel_x, pixel_y,  self.cell_size, 
+                    #                                self.cell_size, color=(0, 100, 255), 
+                    #                                batch=self.game_screen_batch)
                     
                     # 画像を読み込む
                     chair_image = pyglet.resource.image("chair.png")
                     chair =  pyglet.sprite.Sprite(chair_image,  # 読み込んだ画像
                                         pixel_x,        # X座標
                                         pixel_y-20,         # Y座標
-                                        batch=self.batch
+                                        batch=self.game_screen_batch
                                     )
                     
                     # 椅子の場所によって椅子の向きが違う
@@ -178,6 +190,26 @@ class Map():
                     # print(f"元のxy{x, y}")
                     # y = len(self.map_data) - (y + 1)
                     self.seat_queue.append((x, y))
+
+                elif cell == "I":
+                    pass
+
+                # 時間の表示
+                elif cell == "H":
+                    self.statistic_time = pyglet.text.Label(f"時刻： {str(self.s_time)}", 
+                                            font_name="Times New Roman", 
+                                            font_size=20, x=pixel_x, y=pixel_y,
+                                            batch=self.game_screen_batch
+                                    )
+                    self.tiles.append(self.statistic_time)
+                    
+                elif cell == "C":
+                    self.statistic_crowd = pyglet.text.Label(f"混み率： {str(self.rate_crowd)}%",
+                                            font_name="Times New Roman", 
+                                            font_size=20, x=pixel_x, y=pixel_y,
+                                            batch=self.game_screen_batch
+                                    )
+                    self.tiles.append(self.statistic_crowd)
 
 
 
@@ -196,11 +228,11 @@ class Map():
 class Background():
     def __init__(self, window, batch):
         self.window = window
-        self.batch = batch
+        self.game_screen_batch = batch
         # マップのイラストの読み込み
         self.background_pic = pyglet.image.load('map_sample.png')
         # マップのイラストをspriteに設定する
-        self.background_sprite = pyglet.sprite.Sprite(self.background_pic, x = 0, y = 0, batch=self.batch)
+        self.background_sprite = pyglet.sprite.Sprite(self.background_pic, x = 0, y = 0, batch=self.game_screen_batch)
         self.background_sprite.z = 0
         # 引数として渡されたウィンドウのwidthとheightを取り出す
         self.width = self.window.get_size()[0]
