@@ -5,7 +5,8 @@ import glob
 
 
 class Map():
-    def __init__(self, map_data, cell_size, batch, height):
+    def __init__(self, parent, map_data, cell_size, batch, height):
+        self.parent = parent
         self.map_data = map_data
         self.cell_size = cell_size
         self.game_screen_batch = batch
@@ -47,6 +48,7 @@ class Map():
         # 混み率
         self.rate_crowd = 0.0
 
+
         # --- mapを読み込み ---
 
         self.load_map()
@@ -87,11 +89,43 @@ class Map():
                 # print(f"{cell}: {pixel_x}, {pixel_y}")
                 # 場合分け
                 # 壁
-                if cell == "B":
+                if cell == "B" or cell == "C" or cell == "H" or cell == "A" or cell == "D":
                     rect = pyglet.shapes.Rectangle(pixel_x, pixel_y, self.cell_size, 
                                                    self.cell_size, color=(64, 64, 64), 
                                                    batch=self.game_screen_batch)
                     self.tiles.append(rect)
+                    match cell:
+                        case "H":
+                            self.statistic_time = pyglet.text.Label(f"時刻： {str(self.s_time)}", 
+                                            font_name="Times New Roman", 
+                                            font_size=20, x=pixel_x, y=pixel_y+5,
+                                            batch=self.game_screen_batch
+                                    )
+                            self.tiles.append(self.statistic_time)
+                        case "C":
+                            self.statistic_crowd = pyglet.text.Label(f"席の混み率： {str(self.rate_crowd)}%",
+                                            font_name="Times New Roman", 
+                                            font_size=20, x=pixel_x, y=pixel_y+5,
+                                            batch=self.game_screen_batch
+                                    )
+                            self.tiles.append(self.statistic_crowd)
+
+                        case "A":
+                            self.statistic_customer = pyglet.text.Label(f"客数： 0人",
+                                            font_name="Times New Roman", 
+                                            font_size=20, x=pixel_x, y=pixel_y+5,
+                                            batch=self.game_screen_batch
+                                    )
+                            self.tiles.append(self.statistic_customer)
+
+                        case "D":
+                            self.statistic_wait_chair = pyglet.text.Label(f"席待機占有率： 0%",
+                                            font_name="Times New Roman", 
+                                            font_size=20, x=pixel_x, y=pixel_y+5,
+                                            batch=self.game_screen_batch
+                                    )
+                            self.tiles.append(self.statistic_wait_chair)
+
 
                 # 何もない場所（移動可能）
                 elif cell == ".":
@@ -203,13 +237,13 @@ class Map():
                                     )
                     self.tiles.append(self.statistic_time)
                     
-                elif cell == "C":
-                    self.statistic_crowd = pyglet.text.Label(f"混み率： {str(self.rate_crowd)}%",
-                                            font_name="Times New Roman", 
-                                            font_size=20, x=pixel_x, y=pixel_y,
-                                            batch=self.game_screen_batch
-                                    )
-                    self.tiles.append(self.statistic_crowd)
+                # elif cell == "C":
+                #     self.statistic_crowd = pyglet.text.Label(f"混み率： {str(self.rate_crowd)}%",
+                #                             font_name="Times New Roman", 
+                #                             font_size=20, x=pixel_x, y=pixel_y,
+                #                             batch=self.game_screen_batch
+                #                     )
+                #     self.tiles.append(self.statistic_crowd)
 
 
 
@@ -223,7 +257,10 @@ class Map():
     # リストのｘ、ｙをpygletのx,yに変換する
     def to_pyglet_x_y(self, x, y):
         return x, len(self.map_data) - y - 1
-                
+    
+
+            
+
 
 class Background():
     def __init__(self, window, batch):

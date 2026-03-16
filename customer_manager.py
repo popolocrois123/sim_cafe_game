@@ -74,6 +74,7 @@ class CustomerManager:
         # 店内にいる客を数えて混み具合の表示に利用
         self.crowd_count = 0
 
+
         # [宿題]
         # 統計情報の表示
         # 混み率
@@ -312,3 +313,22 @@ class CustomerManager:
             else:
                 pass
             
+
+    # [宿題]
+    # 店にいる客数や席と待機場所の占有率について
+        # 座席と待機場所の呼び出し
+    def wait_chair_call(self):
+        # customer_managerより待機場所の管理リストwait_chairを取得
+        self.wait_chair = self.wait_chair
+        # seat_managerより席の管理リストseat_in_useを取得
+        self.seat_in_use = self.parent.seat_manager.seat_in_use
+        # 1, 待機場所のtrueの数を取得
+        self.true_wait_chair = self.wait_chair.count(True)
+        # 2, 席のtrueの数を取得
+        self.true_seat_in_use = self.seat_in_use.count(True)
+        # マップに指定された待機場所の数を取得
+        self.W_count = sum(w.count("W") for w in self.map_data)
+        # マップに指定された席の数を取得
+        self.S_count = sum(s.count("S") for s in self.map_data)
+        # 3, 二つを加算する
+        self.sum_w_s_count = self.W_count + self.S_count

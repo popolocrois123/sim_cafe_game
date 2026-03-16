@@ -57,14 +57,15 @@ LOG_PATH = "customer_lifecycle.log"
 # --- 統計情報の要素 ---
 # I: 統計画面の何もない場所
 # H: 時間
-# C: 混み具合
-# 
+# C: 席の混み具合
+# A: 店の客数
+# D: 店の待機場所と席の占有率
 # -------------------------------------------------
 MAP_DATA = [
-    'BBBBBBBBBBBBBBBBBBB',
+    'HBBBBBBABBBBBBBBBBB',
     'NGGGGGGGGGGGGGGGGGN',
     'NGGGGGGGGGGGGGGGGGN',
-    'BBBBBBBBBBBBBBBBOEB',
+    'CBBBBBBBDBBBBBBBOEB',
     'B................WB',
     'B................WB',
     'B.STS.STS........WB',
@@ -75,18 +76,5 @@ MAP_DATA = [
     'B................WB',
     'B.STS.STS........WB',
     'B................WB',
-    'BBBBBBBBBBBBBBBBBBB',
-    'IIIIIIIIIIIIIIIIIII',
-    'IIIIIIIIIIIIIIIIIII',
-    'IIIIIHIIIIIIIIIIIII',
-    'IIIIIIIIIIIIIIIIIII',
-    'IIIIICIIIIIIIIIIIII',
-    'IIIIIIIIIIIIIIIIIII',
-    'IIIIIIIIIIIIIIIIIII',
-    'IIIIIIIIIIIIIIIIIII',
-    'IIIIIIIIIIIIIIIIIII',
-    'IIIIIIIIIIIIIIIIIII',
-    'IIIIIIIIIIIIIIIIIII',
-    'IIIIIIIIIIIIIIIIIII',
-    'IIIIIIIIIIIIIIIIIII'
+    'BBBBBBBBBBBBBBBBBBB'
 ]

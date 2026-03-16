@@ -40,22 +40,13 @@ class Main():
         # ゲームスクリーン用のバッチの作成
         self.game_screen_batch = pyglet.graphics.Batch()
 
-        # game_screen_batchの作成　統計ウィンドウ
-        # self.
-
         # キャラクターのリスト
         self.characters = []
 
 
         # self.logger.log("マップの読み込み開始")
         # 背景のmapクラスの呼び出し
-        self.map = Map(MAP_DATA, CELL_SIZE, self.game_screen_batch, self.height)
-
-        # 背景の呼び出し
-        # self.background = Background(self.window, self.game_screen_batch)
-
-        # # playerのスタート位置の呼び出し
-        # px, py = self.map.player_start
+        self.map = Map(self, MAP_DATA, CELL_SIZE, self.game_screen_batch, self.height)
 
         # TimeManagerクラスの呼び出し
         self.time_manager = TimeManager(self)
@@ -66,7 +57,6 @@ class Main():
         # SeatManagerクラスの呼び出し
         self.seat_manager = SeatManager(self, self.map)
 
-        # [宿題]
         # CrowdManagerクラスの呼び出し
         self.crowd_manager = CrowdManager(self)
 
@@ -85,15 +75,14 @@ class Main():
     def on_draw(self):
         self.window.clear()
         self.game_screen_batch.draw()
-        # self.time_manager.timer_label.draw()
-        self.crowd_manager.crowd_label.draw()
+        # self.crowd_manager.crowd_label.draw()
 
 
     def update(self, dt: float):
         self.customer_manager.update(dt)
         self.seat_manager.update(dt)
         self.time_manager.update(dt)
-        self.crowd_manager.update(dt)
+        # self.crowd_manager.update(dt)
         
         
 

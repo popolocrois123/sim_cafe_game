@@ -37,6 +37,8 @@ class SeatManager():
         # 席についている客の数を数える、空き率の計算のため
         self.s_chair = 0
 
+       
+
 
 
         
@@ -60,9 +62,29 @@ class SeatManager():
         seat_crowd_rate = (self.s_chair / len(self.parent.map.seat_queue)) * 100
         # logger.info(f"座っている割合：{seat_crowd_rate}")
         # logger.info(f"席の数：{len(self.parent.map.seat_queue)}")
-
-        self.parent.map.statistic_crowd.text = f"混み率： {int(seat_crowd_rate)}%"
+        
+        # --------
+        # --- map の変更 ---
+        # map.pyのC 席の混み率の変更
+        try:
+            self.parent.map.statistic_crowd.text = f"席の混み率： {int(seat_crowd_rate)}%"
+        except AttributeError:
+            pass
+        # map.py のA客数の変更
+        # AとDについて
+        # 客数の再計算
+        self.wait_chair_call()
+        
+        try:
+            self.parent.map.statistic_customer.text = f"客数： {int(self.true_sum_wait_chair)}人"
+        except AttributeError:
+            pass
         # logger.info(f"座っている割合：{self.parent.map.statistic_crowd.text}")
+        try:
+            self.parent.map.statistic_wait_chair.text = f"席待機占有率： {int(self.true_rate_w_s)}%"
+        except AttributeError:
+            pass
+
 
 
         
@@ -98,24 +120,10 @@ class SeatManager():
 
                         self.parent.customer_manager.current_entrance_buffer -= 1
 
-                        # 最初の席を埋まっていない
-                        # self.parent.customer_manager.wait_pos_in_use[0] = False
-
-                        # 待機場所管理リストの変更
-                        # self.parent.customer_manager.wait_chair[0] = False
-
                         # 詰める処理[宿題]
                         self.parent.customer_manager.shift_waiting_customers_forward()
                         
-                        # 案内されたら色を変える　青に
-                        # cu.sprite.color=(150, 125, 255)
-                        # self.parent.customer_manager.inside_customer_num -= 1
-                                            # # 統計情報
-                        
-    
-
                         break
-                # pass
 
         
 
@@ -185,12 +193,6 @@ class SeatManager():
                     # 統計情報
                     self.s_chair -= 1
 
-
-                    # 変更
-                    # self.parent.customer_manager.inside_customer_num -= 1
-
-                    
-
                     # 座席の解放
                     for idx, (cust_obj, seat_i) in enumerate(self.seat_queue):
                         if cust_obj == cu:
@@ -215,7 +217,29 @@ class SeatManager():
                     
 
 
+    # [宿題]
+    # 店にいる客数や席と待機場所の占有率について
+        # 座席と待機場所の呼び出し
+    def wait_chair_call(self):
+        # customer_managerより待機場所の管理リストwait_chairを取得
+        self.wait_chair = self.parent.customer_manager.wait_chair
 
+        # 1, 待機場所のtrueの数を取得
+        self.true_wait_chair = self.wait_chair.count(True)
+        # 2, 席のtrueの数を取得
+        self.true_seat_in_use = self.seat_in_use.count(True)
+        # true状態の人数の加算
+        self.true_sum_wait_chair = self.true_seat_in_use + self.true_wait_chair
+
+        # マップに指定された待機場所の数を取得
+        self.W_count = sum(w.count("W") for w in MAP_DATA)
+        # マップに指定された席の数を取得
+        self.S_count = sum(s.count("S") for s in MAP_DATA)
+        # 3, 二つを加算する
+        self.sum_w_s_count = self.W_count + self.S_count
+
+        # 占有率の計算
+        self.true_rate_w_s = self.true_sum_wait_chair / self.sum_w_s_count * 100
 
 
     

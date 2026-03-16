@@ -36,4 +36,7 @@ class TimeManager:
             self.hours = self.hours % 24
         minutes =  (self.time_count % 3600) // 60
 
-        self.parent.map.statistic_time.text = f"時刻 {self.hours:02}:{minutes:02}"
+        try:
+            self.parent.map.statistic_time.text = f"時刻 {self.hours:02}:{minutes:02}"
+        except AttributeError:
+            pass
