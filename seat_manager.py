@@ -60,8 +60,6 @@ class SeatManager():
         # 統計情報の更新
         # 空き率の計算
         seat_crowd_rate = (self.s_chair / len(self.parent.map.seat_queue)) * 100
-        # logger.info(f"座っている割合：{seat_crowd_rate}")
-        # logger.info(f"席の数：{len(self.parent.map.seat_queue)}")
         
         # --------
         # --- map の変更 ---
@@ -79,7 +77,6 @@ class SeatManager():
             self.parent.map.statistic_customer.text = f"客数： {int(self.true_sum_wait_chair)}人"
         except AttributeError:
             pass
-        # logger.info(f"座っている割合：{self.parent.map.statistic_crowd.text}")
         try:
             self.parent.map.statistic_wait_chair.text = f"席待機占有率： {int(self.true_rate_w_s)}%"
         except AttributeError:
@@ -143,15 +140,6 @@ class SeatManager():
                     # 席についている客の数
                     self.s_chair += 1
 
-
-
-                    # # 空き率の計算
-                    # seat_crowd_rate = (self.s_chair / len(self.parent.map.seat_queue)) / 100
-                    # self.parent.map.statistic_crowd.text = f"混み率： {int(seat_crowd_rate)}%"
-                # cu.state = "seated"
-                
-    
-
     def eating(self, dt):
         for cu in self.customers:
             if cu.state == "seated":
@@ -177,17 +165,8 @@ class SeatManager():
                     x, y = self.map.exit_pos
                     y = self.real_grid_y - (y + 1)
                     cu.setup_new_target(x, y)
-                    # [宿題]色を変える: 緑に
-                    # cu.sprite.color=(0, 255, 0)
-
-                    # [宿題]　キャラの向きを机の方向にする
-                    # if cu.sprite.x == 2:
-                    # cu.current_animation = "left"
-                    # cu.sprite.image = self.animation_frames["left"]
 
                     cu.state = "leaving"
-                    # logger.info(f"【食事後時間] キャラID：{cu.id} stay_timer: {cu.stay_timer}") 
-                    # logger.info(f"【食事設定時間] キャラID：{cu.id} 設定時間: {STAY_DURATION}") 
 
                     logger.info(f"[出口にアサイン]キャラID：{cu.id} state: {cu.state}")
                     # 統計情報
@@ -198,9 +177,6 @@ class SeatManager():
                         if cust_obj == cu:
                             self.seat_in_use[seat_i] = False
                             self.seat_queue.pop(idx)
-                            # cu.stay_timer = 0
-
-                            # logger.info(f"【座席解放】id: {cu.id} seat: [{seat_i}]") 
  
 
 

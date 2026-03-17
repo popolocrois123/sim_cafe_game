@@ -81,22 +81,6 @@ class CustomerManager:
         # 時間のカウント
         self.time_count = 0
 
-
-
-        # [宿題]
-        # 統計情報の表示
-        # 混み率
-        # self.rate_crowd
-        # self.statistic_crowd = pyglet.text.Label(self.rate_crowd, font_name="Times New Roman", 
-        #                                      font_size=20, x=pixel_x, y=pixel_y,
-        #                                      anchor_y="bottom")
-        # # 時計
-        # self.s_time = 0.0
-        # self.statistic_time = pyglet.text.Label(str(self.s_time), font_name="Times New Roman", 
-        #                                      font_size=20, x=pixel_x, y=pixel_y,
-        #                                      anchor_y="bottom")
-        
-
     # 初期顧客の生成
     def setup_initial_customers(self):
         # ⭐ 初期顧客を spawn_customer() 経由で生成
@@ -307,7 +291,6 @@ class CustomerManager:
 
                         break
     
-    # [宿題]
     # 時間ごとの顧客の生成間隔
     def customer_crowd(self):
         for id, val in self.crowd.items():
