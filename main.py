@@ -81,7 +81,7 @@ class Main():
     def update(self, dt: float):
         self.customer_manager.update(dt)
         self.seat_manager.update(dt)
-        self.time_manager.update(dt)
+        # self.time_manager.update(dt)
         # self.crowd_manager.update(dt)
         
         
