@@ -44,7 +44,6 @@ class Main():
         self.characters = []
 
 
-        # self.logger.log("マップの読み込み開始")
         # 背景のmapクラスの呼び出し
         self.map = Map(self, MAP_DATA, CELL_SIZE, self.game_screen_batch, self.height)
 

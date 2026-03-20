@@ -61,15 +61,13 @@ class SeatManager():
         # 空き率の計算
         seat_crowd_rate = (self.s_chair / len(self.parent.map.seat_queue)) * 100
         
-        # --------
         # --- map の変更 ---
-        # map.pyのC 席の混み率の変更
+        # map.py C:席の混み率 の変更
         try:
             self.parent.map.statistic_crowd.text = f"席の混み率： {int(seat_crowd_rate)}%"
         except AttributeError:
             pass
-        # map.py のA客数の変更
-        # AとDについて
+        # map.py A:客数 の変更
         # 客数の再計算
         self.wait_chair_call()
         
@@ -194,8 +192,8 @@ class SeatManager():
 
 
     # [宿題]
-    # 店にいる客数や席と待機場所の占有率について
-        # 座席と待機場所の呼び出し
+    # --- 店にいる客数や席と待機場所の占有率について ---
+    # 座席と待機場所の呼び出し
     def wait_chair_call(self):
         # customer_managerより待機場所の管理リストwait_chairを取得
         self.wait_chair = self.parent.customer_manager.wait_chair

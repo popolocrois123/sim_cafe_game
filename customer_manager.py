@@ -38,7 +38,7 @@ class CustomerManager:
         # 現在の入り口キューへの客入りの状況
         self.current_entrance_buffer = 0
 
-        # 顧客の入口での管理のためのキュー
+        # --- 顧客の入口での管理のためのキュー ---
         # 1, 待機場所管理リスト
         self.wait_chair = [False for i in range(len(self.wait_queue))]
         # print(self.wait_chair)
@@ -250,9 +250,6 @@ class CustomerManager:
         for i, cu in enumerate(self.customers):
             # logger.info(f"state: {cu.state}")
             if cu.state == "exited":
-                # logger.info(f"state: {cu.state}")
-                # # そのインスタンスをリストの中にいれて管理する
-
                 logger.info(f"[キャラの削除]キャラID：{cu.id} state: {cu.state}")
                 
                 # 明示的にスプライトを削除
@@ -307,7 +304,6 @@ class CustomerManager:
                 pass
             
 
-    # [宿題]
     # ゲーム内時間の表示
     def show_timer(self, dt):
         self.time_count += int(dt * 60) * 10
