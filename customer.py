@@ -2,6 +2,7 @@ import pyglet
 from setting import *
 import random
 
+# 
 class Customer:
     def __init__(self, start_pos, state, window_height, cell_size, color, batch):
         # 初期グリッド

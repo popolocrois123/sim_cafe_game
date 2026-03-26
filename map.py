@@ -1,238 +1,168 @@
 import pyglet
-import queue
 from loguru import logger
 import glob
+from setting import *
 
 
+# =========================
+# マップクラス
+# =========================
 class Map():
     def __init__(self, parent, map_data, cell_size, batch, height):
         self.parent = parent
         self.map_data = map_data
         self.cell_size = cell_size
-        self.game_screen_batch = batch
+        self.batch = batch
         self.height = height
 
+        #=========================
+        # マップ構造
+        #=========================
 
-        self.tiles = []
-        # 通れないブロックのリスト
-        self.block_tiles = ["B", "T"]
+        self.tiles = [] # 描画用のタイルやスプライトを保存するリスト
 
-        # 待機場所ｗの数
-        self.w_count = self.map_data.count("W")
+        self.wait_queue = [] # 待機エリアのグリッド座標を保存するリスト
+        self.seat_positions = [] # 席のグリッド座標を保存するリスト
+        self.table_positions = [] # テーブルのグリッド座標を保存するリスト
+        self.spawn_area = [] # 顧客の出現エリアのグリッド座標を保存するリスト
 
-        # 待機場所のキュー作成
-        # self.wait_queue = queue.Queue(self.w_count)
-        self.wait_queue = []
+        self.entrance_pos = None # 入口のグリッド座標
+        self.exit_pos = None # 出口のグリッド座標
 
-        # 席のキュー
-        self.seat_queue = []
+        self.s_time = 0.0 # 混雑率計算用の時間計測開始点
+        self.rate_crowd = 0.0 # 混雑率計算用の混雑率保存変数
 
-        # 机のキュー
-        self.table_queue = []
+        self.statistic_time = None # 時刻表示用のラベル（初期化後に設定される）
+        self.statistic_crowd = None # 混雑率表示用のラベル（初期化後に設定される）
+        self.statistic_customer = None # 客数表示用のラベル（初期化後に設定される）
+        self.statistic_wait_chair = None # 席待機占有率表示用のラベル（初期化後に設定される）
 
-        # 生成場所
-        self.general_costomer_area = []
-
-        # 店の入り口
-        self.entrance_pos = None
-
-        # 店の出口
-        self.exit_pos = None
-
-        # playerのスタート位置
-        self.player_start = (0, 1)
-
-        # --- 統計情報について ---
-        # 時間の表示についてH
-        self.s_time = 0.0
-        # 混み率
-        self.rate_crowd = 0.0
-
-
-        # --- mapを読み込み ---
-
-        self.load_map()
-
-
-        # logger.debug(f"wait_queueの確認（リバース変更前）{self.wait_queue}")
+        # マップ解析と初期描画
+        self._parse_map()
+        # 待機エリアは後ろから埋まっていくようにするため、待機エリアのリストを逆順にしておく
         self.wait_queue.reverse()
-
-        # キャラチップのフォルダ読み込む
+        # キャラクターファイルのリストを取得
         self.chara_file = glob.glob("./characters/*")
 
 
-
-
-    # セルの対応文字ごとにいろと役割を設定する（例：Bはグレーなど）
-    # マップの文字情報（グリッド）をピクセル座標に変換する
-    # キャラクターがマップの各マス（グリッド）に移動できるかどうかを判別する関数（is_walkable)
-    def load_map(self):
+    # =========================
+    # マップ解析
+    # =========================
+    def _parse_map(self):
         for y, row in enumerate(self.map_data):
             for x, cell in enumerate(row):
-                pixel_x = x * self.cell_size
-                # pixel_y = self.height - (y + 1) * self.cell_size
-                pixel_y = (len(self.map_data) - (y + 1)) * self.cell_size
+                px, py = self._to_pixel(x, y)
+                tile_type = TILE_MAP.get(cell, FLOOR)
 
-                # 場合分け
-                # 壁
-                if cell == "B" or cell == "C" or cell == "H" or cell == "A" or cell == "D":
-                    rect = pyglet.shapes.Rectangle(pixel_x, pixel_y, self.cell_size, 
-                                                   self.cell_size, color=(64, 64, 64), 
-                                                   batch=self.game_screen_batch)
-                    self.tiles.append(rect)
-                    match cell:
-                        case "H":
-                            self.statistic_time = pyglet.text.Label(f"時刻： {str(self.s_time)}", 
-                                            font_name="Times New Roman", 
-                                            font_size=20, x=pixel_x, y=pixel_y+5,
-                                            batch=self.game_screen_batch
-                                    )
-                            self.tiles.append(self.statistic_time)
-                        case "C":
-                            self.statistic_crowd = pyglet.text.Label(f"席の混み率： {str(self.rate_crowd)}%",
-                                            font_name="Times New Roman", 
-                                            font_size=20, x=pixel_x, y=pixel_y+5,
-                                            batch=self.game_screen_batch
-                                    )
-                            self.tiles.append(self.statistic_crowd)
-
-                        case "A":
-                            self.statistic_customer = pyglet.text.Label(f"客数： 0人",
-                                            font_name="Times New Roman", 
-                                            font_size=20, x=pixel_x, y=pixel_y+5,
-                                            batch=self.game_screen_batch
-                                    )
-                            self.tiles.append(self.statistic_customer)
-
-                        case "D":
-                            self.statistic_wait_chair = pyglet.text.Label(f"席待機占有率： 0%",
-                                            font_name="Times New Roman", 
-                                            font_size=20, x=pixel_x, y=pixel_y+5,
-                                            batch=self.game_screen_batch
-                                    )
-                            self.tiles.append(self.statistic_wait_chair)
-
-
-                # 何もない場所（移動可能）
-                elif cell == ".":
-                    pass
-
-
-                # 生成エリア
-                elif cell == "G":
-                    self.general_costomer_area.append((x, y))
-
-                # 生成場所の端
-                elif cell == "N":
-                    rect = pyglet.shapes.Rectangle(pixel_x, pixel_y,  self.cell_size, 
-                                                   self.cell_size, color=(0, 255, 255), 
-                                                   batch=self.game_screen_batch)
-                    self.tiles.append(rect)
-
-                # 入り口
-                elif cell == "E":
+                if tile_type == WALL:
+                    self._create_wall(px, py)
+                elif tile_type == FLOOR:
+                    continue
+                elif tile_type == SPAWN:
+                    self.spawn_area.append((x, y))
+                elif tile_type == SPAWN_EDGE:
+                    self._draw_rect(px, py, (0, 255, 255))
+                elif tile_type == ENTRANCE:
                     self.entrance_pos = (x, y)
-                    logger.debug(f"【入り口の座標の追加】{x, y}")
-
-                # 出口
-                elif cell == "O":
+                elif tile_type == EXIT:
                     self.exit_pos = (x, y)
-                    logger.debug(f"【出口座標の追加】{x, y}")
-
-                
-                # 待機場所
-                elif cell == "W":
-                    rect = pyglet.shapes.Rectangle(pixel_x, pixel_y,  self.cell_size, 
-                                                   self.cell_size, color=(0, 0, 255), 
-                                                   batch=self.game_screen_batch)
-                    self.tiles.append(rect)
+                elif tile_type == WAIT:
+                    self._create_wait_area(px, py)
                     self.wait_queue.append((x, y))
+                elif tile_type == TABLE:
+                    self._create_table(px, py)
+                    self.table_positions.append((x, y))
+                elif tile_type == SEAT:
+                    self._create_chair(px, py, x)
+                    self.seat_positions.append((x, y))
+                # INFOラベル系
+                elif tile_type == TIME_LABEL:
+                    self._create_time_label(px, py)
+                elif tile_type == CROWD_LABEL:
+                    self._create_crowd_label(px, py)
+                elif tile_type == CUSTOMER_LABEL:
+                    self._create_customer_label(px, py)
+                elif tile_type == WAIT_LABEL:
+                    self._create_wait_label(px, py)
 
+    # =========================
+    # 描画ユーティリティ
+    # =========================
+    def _draw_rect(self, px, py, color):
+        rect = pyglet.shapes.Rectangle(px, py, self.cell_size, self.cell_size, color=color, batch=self.batch)
+        self.tiles.append(rect)
 
-                # テーブル
-                elif cell == "T":
-                   
-                    # 画像を読み込む
-                    table_image = pyglet.resource.image("table.png")
-                    table =  pyglet.sprite.Sprite(table_image,  # 読み込んだ画像
-                                        pixel_x,        # X座標
-                                        pixel_y-10,         # Y座標
-                                        batch=self.game_screen_batch
-                                    )
-                    table.scale_x = 0.08      # 大きさの比率
-                    table.scale_y = 0.11
-                    self.tiles.append(table)
-                    self.table_queue.append((x, y))
+    def _to_pixel(self, x, y):
+        return x * self.cell_size, (len(self.map_data) - (y + 1)) * self.cell_size
 
+    # =========================
+    # 各タイル描画関数
+    # =========================
+    def _create_wall(self, px, py):
+        self._draw_rect(px, py, (64, 64, 64))
 
-                # 席
-                elif cell == "S":
-                    
-                    # 画像を読み込む
-                    chair_image = pyglet.resource.image("chair.png")
-                    chair =  pyglet.sprite.Sprite(chair_image,  # 読み込んだ画像
-                                        pixel_x,        # X座標
-                                        pixel_y-20,         # Y座標
-                                        batch=self.game_screen_batch
-                                    )
-                    
-                    # 椅子の場所によって椅子の向きが違う
-                    if x == 2 or x == 6:
-                        chair.scale_x = -0.08
-                        chair.x += chair.width
-                    else:
-                        chair.scale_x = 0.08      # 大きさの比率
-                    chair.scale_y = 0.11
+    def _create_wait_area(self, px, py):
+        self._draw_rect(px, py, (0, 0, 255))
 
+    def _create_table(self, px, py):
+        img = pyglet.resource.image("table.png")
+        sprite = pyglet.sprite.Sprite(img, px, py - 10, batch=self.batch)
+        sprite.scale_x = 0.08
+        sprite.scale_y = 0.11
+        self.tiles.append(sprite)
 
-                    self.tiles.append(chair)
-                    # print(f"元のxy{x, y}")
-                    # y = len(self.map_data) - (y + 1)
-                    self.seat_queue.append((x, y))
+    def _create_chair(self, px, py, x):
+        img = pyglet.resource.image("chair.png")
+        sprite = pyglet.sprite.Sprite(img, px, py - 20, batch=self.batch)
+        sprite.scale_y = 0.11
+        sprite.scale_x = -0.08 if x in (2, 6) else 0.08
+        if x in (2, 6): sprite.x += sprite.width
+        self.tiles.append(sprite)
 
-                elif cell == "I":
-                    pass
+    # =========================
+    # INFOラベル生成
+    # =========================
+    def _create_time_label(self, px, py):
+        self.statistic_time = self._create_label("時刻：0", px, py)
 
-                # 時間の表示
-                elif cell == "H":
-                    self.statistic_time = pyglet.text.Label(f"時刻： {str(self.s_time)}", 
-                                            font_name="Times New Roman", 
-                                            font_size=20, x=pixel_x, y=pixel_y,
-                                            batch=self.game_screen_batch
-                                    )
-                    self.tiles.append(self.statistic_time)
-                    
+    def _create_crowd_label(self, px, py):
+        self.statistic_crowd = self._create_label("席の混み率：0%", px, py)
 
+    def _create_customer_label(self, px, py):
+        self.statistic_customer = self._create_label("客数：0人", px, py)
 
+    def _create_wait_label(self, px, py):
+        self.statistic_wait_chair = self._create_label("席待機占有率：0%", px, py)
+
+    def _create_label(self, text, px, py):
+        label = pyglet.text.Label(text, font_name="Times New Roman", font_size=20, x=px, y=py + 5, batch=self.batch)
+        self.tiles.append(label)
+        return label
+
+    # =========================
+    # ユーティリティ
+    # =========================
     def is_walkable(self, x, y):
         if 0 <= y < len(self.map_data) and 0 <= x < len(self.map_data[0]):
-            # 通れないにキャラが入っているかどうかを判別
-            return self.map_data[y][x] not in self.block_tiles
+            tile_type = TILE_MAP.get(self.map_data[y][x], FLOOR)
+            return tile_type != WALL
         return False
-                        
 
-    # リストのｘ、ｙをpygletのx,yに変換する
     def to_pyglet_x_y(self, x, y):
         return x, len(self.map_data) - y - 1
-    
-
-            
 
 
+
+# =========================
+# 背景
+# =========================
 class Background():
     def __init__(self, window, batch):
         self.window = window
-        self.game_screen_batch = batch
-        # マップのイラストの読み込み
-        self.background_pic = pyglet.image.load('map_sample.png')
-        # マップのイラストをspriteに設定する
-        self.background_sprite = pyglet.sprite.Sprite(self.background_pic, x = 0, y = 0, batch=self.game_screen_batch)
-        self.background_sprite.z = 0
-        # 引数として渡されたウィンドウのwidthとheightを取り出す
-        self.width = self.window.get_size()[0]
-        self.height = self.window.get_size()[1]
-        # スケーリング係数を設定
-        self.background_sprite.scale_x = window.width / self.background_pic.width
-        self.background_sprite.scale_y = window.height / self.background_pic.height
-    
-        
+        self.batch = batch
+
+        img = pyglet.image.load('map_sample.png')
+        self.sprite = pyglet.sprite.Sprite(img, x=0, y=0, batch=self.batch)
+
+        self.sprite.scale_x = window.width / img.width
+        self.sprite.scale_y = window.height / img.height

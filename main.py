@@ -14,9 +14,10 @@ from loguru import logger
 import time
 import sys
 
-
+# メインクラス
 class Main():
     def __init__(self):
+        # ロガー設定
         logger.remove()
         logger.add("log_state.log", level="INFO", encoding="utf-8")
 
@@ -41,7 +42,7 @@ class Main():
         self.game_screen_batch = pyglet.graphics.Batch()
 
         # キャラクターのリスト
-        self.characters = []
+        self.characters = [] # Customer_manager や Seat_manager で管理するため、Mainクラスでは空のリストを用意しておく
 
 
         # 背景のmapクラスの呼び出し
@@ -55,9 +56,6 @@ class Main():
         
         # SeatManagerクラスの呼び出し
         self.seat_manager = SeatManager(self, self.map)
-
-        # CrowdManagerクラスの呼び出し
-        self.crowd_manager = CrowdManager(self)
 
         # mainでデバッグを使う方法
         logger.debug("mainの初期化完了しました。")
@@ -74,14 +72,11 @@ class Main():
     def on_draw(self):
         self.window.clear()
         self.game_screen_batch.draw()
-        # self.crowd_manager.crowd_label.draw()
 
 
     def update(self, dt: float):
         self.customer_manager.update(dt)
         self.seat_manager.update(dt)
-        # self.time_manager.update(dt)
-        # self.crowd_manager.update(dt)
         
         
 
