@@ -19,7 +19,9 @@ class Main():
     def __init__(self):
         # ロガー設定
         logger.remove()
-        logger.add("log_state.log", level="INFO", encoding="utf-8")
+        logger.add("log_state.log", level="INFO", 
+                   filter=lambda record: record["level"].name in ["INFO",],
+                   encoding="utf-8")
 
 
         # 引数として渡されたwidthとheightを取り出す

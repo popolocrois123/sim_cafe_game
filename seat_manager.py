@@ -54,7 +54,7 @@ class SeatManager():
                         cu.setup_new_target(x, y)
                         cu.state = "moving_to_seat"
 
-                        logger.info(f"【席アサイン】id:{cu.id} seat:{j} state:{cu.state}")
+                        logger.info(f"【席アサイン】id: {cu.id} seat:{j} state:{cu.state}")
 
                         # 待機列処理
                         for cu_value in self.parent.customer_manager.waiting_queue:
@@ -67,7 +67,6 @@ class SeatManager():
                             x for x in self.parent.customer_manager.waiting_queue if x[0] != cu
                         ]
                         # 待機列を前に詰める
-                        self.parent.customer_manager.current_entrance_buffer -= 1
                         self.parent.customer_manager.shift_waiting_customers_forward()
 
                         break

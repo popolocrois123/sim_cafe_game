@@ -8,7 +8,7 @@ from loguru import logger
 # 顧客管理クラス
 class CustomerManager:
     # 顧客の生成と管理を担当
-    def __init__(self, parent, map_data, map, num_customers=10):
+    def __init__(self, parent, map_data, map, num_customers=3):
         self.parent = parent
         self.map = map
         self.map_data = map_data
@@ -29,6 +29,7 @@ class CustomerManager:
         self.max_customers = MAX_CUSTOMERS # 店内に同時に存在できる顧客の最大数（待機も含む）
         self.spawn_interval = SPAWN_TIME # 顧客生成の基本間隔（秒）初期設定
         self.spawn_timer = 0.0 # 顧客生成のタイマー
+        self.count_log = 0 # log を一回だけ記録する
 
         # 時間
         self.hours = 0 # 時間帯（0-23）# 時間帯の初期値
@@ -37,6 +38,11 @@ class CustomerManager:
         # 生成
         self.num_customers_to_initialize = num_customers
         self.setup_initial_customers()
+
+        # 顧客の状態遷移フロー
+        # "outside" → "moving_to_entrance" → "arrive" → "moving_to_wait" 
+        # → "waiting_in_queue" → "waiting_to_sit_to_seat" → "moving_to_seat" 
+        # → "seated" → "leaving" → "exited"
 
 
     # =========================
@@ -54,7 +60,7 @@ class CustomerManager:
         self.handle_spawn(dt)
         self.handle_entrance()
         self.move_to_entrance(dt)
-        self.handle_wait_move(dt)
+        self.assign_wait_area()
         self.handle_waiting(dt)
         self.handle_deletion()
         # self.shift_waiting_customers_forward()
@@ -89,7 +95,6 @@ class CustomerManager:
 
         self.spawn_customer()
 
-        logger.info(f"生成：hour={self.hours}, interval={self.spawn_interval}")
 
     # =========================
     # 顧客生成 
@@ -110,7 +115,7 @@ class CustomerManager:
         # 顧客の状態を初期化
         self.customers.append(mover)
 
-        logger.info(f"生成 id={mover.id}, state={mover.state}")
+        logger.debug(f"[生成] id: {mover.id}, state: {mover.state}") # outside
 
 
     # =========================
@@ -125,9 +130,9 @@ class CustomerManager:
             x, y = self.map.to_pyglet_x_y(*self.map.entrance_pos)
             cu.setup_new_target(x, y)
 
-            logger.info(f"生成 id={cu.id}, state={cu.state}")
-
             cu.state = "moving_to_entrance"
+            logger.debug(f"[入り口割り当て] id: {cu.id}, state: {cu.state}") # moving_to_entrance
+
 
     # =========================
     # 入口に向かう顧客の移動
@@ -138,45 +143,35 @@ class CustomerManager:
                 continue
 
             cu.update(dt)
-            logger.info(f"生成 id={cu.id}, state={cu.state}")
-
 
             if cu.reached:
                 cu.state = "arrive"
+                logger.info(f"[入り口到着] id: {cu.id}, state: {cu.state}")
                 cu.reached = False
 
 
     # =========================
     # 待機
     # =========================
-    def handle_wait_move(self, dt):
+    def assign_wait_area(self):
         for cu in self.customers:
-            if cu.state != "arrive":
-                continue
+            if cu.state == "arrive":
+                # 最も近い人を待機場所に割り当てる
+                # logger.debug(f"{self.wait_chair}")
+                for j, chaired in enumerate(self.wait_chair):
+                    if not chaired:
+                        self.wait_chair[j] = True
+                        
+                        # 紐付けようのリストに入れる
+                        self.waiting_queue.append((cu, j))
 
-            self.assign_wait_slot(cu)
+                        x, y = self.waiting_queue[j]
+                        x, y = self.map.to_pyglet_x_y(x, y)
 
-    # =========================
-    # 待機列の移動
-    # =========================
-    def assign_wait_slot(self, cu):
-        for i, occupied in enumerate(self.wait_chair):
-            if occupied:
-                continue
+                        cu.state = "moving_to_wait" 
+                        logger.info(f"[待機場所にアサイン] id: {cu.id} state: {cu.state}")   
+                        break
 
-            self.wait_chair[i] = True
-            # 待機列に追加
-            self.waiting_queue.append((cu, i))
-            # 待機位置に移動
-            x, y = self.map.to_pyglet_x_y(*self.wait_positions[i])
-            cu.setup_new_target(x, y)
-
-            logger.info(f"生成 id={cu.id}, state={cu.state}")
-
-
-            cu.state = "moving_to_wait"
-            logger.info(f"待機アサイン id={cu.id}")
-            break
 
     # =========================
     # 待機列の移動と状態更新
@@ -184,24 +179,23 @@ class CustomerManager:
     def handle_waiting(self, dt):
         for num, (cu, idx) in enumerate(self.waiting_queue):
 
-            if cu.state != "moving_to_wait":
-                continue
+            # if cu.state != "moving_to_wait":
+            #     continue
 
             x, y = self.map.to_pyglet_x_y(*self.wait_positions[idx])
             cu.setup_new_target(x, y)
             cu.update(dt)
 
-            logger.info(f"[待機列の移動] 客のid {cu.id}, target: {(x, y)}, state: {cu.state}")
-
-            if not cu.reached:
-                continue
-
+            if cu.reached:
+                # 最前列だけ「席へ移動する状態」にする
+                if idx == 0:
+                    cu.state = "waiting_to_sit_to_seat"
+                    logger.info(f"[席アサイン待ち] id: {cu.id}, idx {idx}, target: {(x, y)}, state: {cu.state}")
+                else:
+                    cu.state = "waiting_in_queue"
             cu.reached = False
-            # 待機位置に到達したら全員「待機状態」に統一
-            cu.state = "waiting_in_queue"
-            # 最前列だけ「席へ移動する状態」にする
-            if num == 0:
-                cu.state = "waiting_to_sit_to_seat"
+
+
 
     # =========================
     # 待機列を前に詰める
@@ -209,61 +203,39 @@ class CustomerManager:
     def shift_waiting_customers_forward(self):
         for i in range(len(self.wait_chair)):
             if not self.wait_chair[i]:
-
                 for idx, (cu, current_i) in enumerate(self.waiting_queue):
+
                     # 後ろにいる客を前へ詰める
                     if current_i > i:
+                        # waiting_queue を更新
+                        self.waiting_queue[idx] = (cu, i)
                         # 元の位置を空ける
                         self.wait_chair[current_i] = False
 
                         # 新しい位置を埋める
                         self.wait_chair[i] = True
 
-                        # waiting_queue を更新
-                        self.waiting_queue[idx] = (cu, i)
+
 
                         # 目的地を更新（wait_queueを使用）
                         x, y = self.map.wait_queue[i]
 
-                        logger.info(f"[詰める] 客のid {cu.id}, target: {(x, y)}, state: {cu.state}")
+                        # yの変更
+                        x, y = self.map.to_pyglet_x_y(x, y)
+
+
+                        logger.info(f"[詰める] id: {cu.id}, target: {(x, y)}, state: {cu.state} current_i: {current_i} -> new_i: {i}")
 
                         # 移動指示
                         cu.setup_new_target(x, y)
+
                         # 最前列だけ「席へ移動する状態」にする
-                        if i == 0:
+                        if current_i == 0:
                             cu.state = "waiting_to_sit_to_seat"
-                            logger.info(f"【最前列】id:{cu.id} state:{cu.state}")
+                            logger.info(f"【最前列：席アサイン待ち】id: {cu.id} state:{cu.state}")
 
 
                         break
-    # def shift_waiting_customers_forward(self):
-    #     """待機列の顧客を前に詰める"""
-    #     # 待機列が空の場合は何もしない
-    #     if not self.waiting_queue:
-    #         return
-
-    #     # 待機列の顧客を前から順に再配置
-    #     new_waiting_queue = []
-
-    #     # 待機列の最前列（一番下）のインデックス
-    #     front_y = self.wait_positions[0][1] # 待機列の最前列のy座標を取得(この場合13)
-        
-    #     for i, (cu, waiting_idx) in enumerate(self.waiting_queue):
-    #         # 待機位置のインデックスを更新
-    #         new_idx = self.wait_positions[waiting_idx][1] - 1 # 待機列のy座標を1つ前に詰める
-    #         logger.info(f"待機列移動前: id={cu.id}, new_idx={new_idx}")
-    #         # ターゲット位置を設定
-    #         x, y = self.map.to_pyglet_x_y(*self.wait_positions[new_idx])
-    #         cu.setup_new_target(x, y)
-
-    #         # 客が待機場所の最前列（一番下）にいる場合のみ座席移動を開始する
-    #         if waiting_idx == front_y:
-    #             cu.state = "waiting_to_sit_to_seat"
-    #         # else: 既に "waiting_in_queue" 状態のため変更不要
-
-    #         new_waiting_queue.append((cu, new_idx))
-
-    #     self.waiting_queue = new_waiting_queue
 
     # =========================
     # 削除

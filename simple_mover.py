@@ -73,6 +73,7 @@ class SimpleMover:
     # =========================
     # ターゲット設定
     # =========================
+    # ターゲット座標を更新する関数
     def setup_new_target(self, x, y):
         self.target_x = x
         self.target_y = y
