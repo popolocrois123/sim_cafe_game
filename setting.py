@@ -1,5 +1,6 @@
 import random
 from enum import Enum
+from types import SimpleNamespace
 
 # =========================
 # 基本設定
@@ -36,6 +37,23 @@ def get_crowd_level(customer_count):
         return CrowdLevel.NORMAL
     else:
         return CrowdLevel.CROWDED
+    
+# =========================
+# 客の状態についての定義
+# =========================
+# 顧客の状態を定義するEnum
+Customer_State = SimpleNamespace(
+    OUTSIDE=1, # 待機中
+    MOVING_TO_ENTRANCE=2,   # 入口に向かっている
+    ARRIVE=3,    # 入口に到着
+    MOVING_TO_WAIT=4, # 待機エリアに向かっている
+    WAITING_IN_QUEUE=5, # 待機列に並んでいる
+    WAITING_TO_SIT_TO_SEAT=6, # 席に座る準備をしている
+    MOVING_TO_SEAT=7, # 席に向かっている
+    SEATED=8,    # 着席中
+    LEAVING=9, # 席を立っている
+    EXITED=10 # 店を出た
+)
 
 
 # =========================

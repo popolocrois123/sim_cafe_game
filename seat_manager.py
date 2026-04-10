@@ -24,6 +24,7 @@ class SeatManager():
         # "outside" → "moving_to_entrance" → "arrive" → "moving_to_wait" 
         # → "waiting_in_queue" → "waiting_to_sit_to_seat" → "moving_to_seat" 
         # → "seated" → "leaving" → "exited"
+        self.customer_state = self.parent.customer_manager.customer_state
 
     def update(self, dt):
         self.assign_seat()
@@ -38,7 +39,7 @@ class SeatManager():
     # =========================
     def assign_seat(self):
         for cu in self.customers:
-            if cu.state == "waiting_to_sit_to_seat" and not cu.has_reserved_seat:
+            if cu.state == self.customer_state.WAITING_TO_SIT_TO_SEAT and not cu.has_reserved_seat:
 
                 for j, in_use in enumerate(self.seat_in_use):
                     if not in_use:
@@ -52,7 +53,7 @@ class SeatManager():
                         y = self.real_grid_y - (y + 1)
 
                         cu.setup_new_target(x, y)
-                        cu.state = "moving_to_seat"
+                        cu.state = self.customer_state.MOVING_TO_SEAT
 
                         logger.info(f"【席アサイン】id: {cu.id} seat:{j} state:{cu.state}")
 
@@ -77,11 +78,11 @@ class SeatManager():
     # =========================
     def move_to_seat(self, dt):
         for cu in self.customers:
-            if cu.state == "moving_to_seat":
+            if cu.state == self.customer_state.MOVING_TO_SEAT:
                 cu.update(dt)
 
                 if cu.reached:
-                    cu.state = "seated"
+                    cu.state = self.customer_state.SEATED
                     cu.reached = False
 
                     logger.info(f"[着席] id:{cu.id}")
@@ -92,7 +93,7 @@ class SeatManager():
     # =========================
     def eating(self, dt):
         for cu in self.customers:
-            if cu.state == "seated":
+            if cu.state == self.customer_state.SEATED:
 
                 cu.stay_timer += dt
 
@@ -112,7 +113,7 @@ class SeatManager():
                     y = self.real_grid_y - (y + 1)
 
                     cu.setup_new_target(x, y)
-                    cu.state = "leaving"
+                    cu.state = self.customer_state.LEAVING
 
                     logger.info(f"[退店開始] id:{cu.id}")
 
@@ -127,11 +128,11 @@ class SeatManager():
     # =========================
     def move_to_exit(self, dt):
         for cu in self.customers:
-            if cu.state == "leaving":
+            if cu.state == self.customer_state.LEAVING:
                 cu.update(dt)
 
                 if cu.reached:
-                    cu.state = "exited"
+                    cu.state = self.customer_state.EXITED
                     logger.info(f"[退店完了] id:{cu.id}")
 
 
