@@ -1,73 +1,45 @@
 import pyglet
-from pyglet.window import key
-# from model import Character, Hero
-from map import Background, Map
+from map import Map
 from setting import *
-import time
-from customer import Customer
 from customer_manager import CustomerManager
 from seat_manager import SeatManager
-from time_manager import TimeManager
-from crowd_manager import CrowdManager
-
 from loguru import logger
-import time
-import sys
+
 
 # メインクラス
 class Main():
     def __init__(self):
-        # ロガー設定
+        # ログ設定
         logger.remove()
         logger.add("log_state.log", level="INFO", 
-                   filter=lambda record: record["level"].name in ["INFO",],
+                   filter=lambda record: record["level"].name in ["INFO"],
                    encoding="utf-8")
 
+        # ウィンドウの幅と高さ
+        self.width = WINDOW_WIDTH
+        self.height = WINDOW_HEIGHT
 
-        # 引数として渡されたwidthとheightを取り出す
-        self.width = len(MAP_DATA[0]) * CELL_SIZE
-        self.height = len(MAP_DATA) * CELL_SIZE
 
         # windowの設定
         self.window = pyglet.window.Window(width=self.width, height=self.height,
-                                            caption="rpg", resizable=True)
-        
-
-        self.window.set_location(x=400, y=200)
-        self.window.set_minimum_size(width=500, height=500)
-
-        # キーを押している間だけ動く
-        self.keys = key.KeyStateHandler()
-        self.window.push_handlers(self.keys)
+                                            caption=WINDOW_TITLE, resizable=True)
+        self.window.set_location(CENTER_X, CENTER_Y) # パソコンの幅から中央にウィンドウをセットする
+        self.window.set_minimum_size(width=500, height=500) # 最小サイズの設定
         
         # ゲームスクリーン用のバッチの作成
         self.game_screen_batch = pyglet.graphics.Batch()
 
-        # キャラクターのリスト
-        self.characters = [] # Customer_manager や Seat_manager で管理するため、Mainクラスでは空のリストを用意しておく
-
-
         # 背景のmapクラスの呼び出し
-        self.map = Map(self, MAP_DATA, CELL_SIZE, self.game_screen_batch, self.height)
-
-        # TimeManagerクラスの呼び出し
-        self.time_manager = TimeManager(self)
+        self.map = Map(self)
 
         # CustomerMageクラスの呼び出し
-        self.customer_manager = CustomerManager(self, MAP_DATA, self.map)
+        self.customer_manager = CustomerManager(self)
         
         # SeatManagerクラスの呼び出し
-        self.seat_manager = SeatManager(self, self.map)
-
-        # mainでデバッグを使う方法
-        logger.debug("mainの初期化完了しました。")
+        self.seat_manager = SeatManager(self)
 
         
-        # Heroの操作用
-        self.window.push_handlers(self)
-
-        
-        pyglet.clock.schedule_interval(self.update, 1/60)
+        pyglet.clock.schedule_interval(self.update, 1/FPS)
 
 
 

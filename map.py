@@ -8,12 +8,12 @@ from setting import *
 # マップクラス
 # =========================
 class Map():
-    def __init__(self, parent, map_data, cell_size, batch, height):
+    def __init__(self, parent):
         self.parent = parent
-        self.map_data = map_data
-        self.cell_size = cell_size
-        self.batch = batch
-        self.height = height
+        self.map_data = MAP_DATA
+        self.cell_size = CELL_SIZE
+        self.batch = parent.game_screen_batch
+        self.height = parent.height
 
         #=========================
         # マップ構造

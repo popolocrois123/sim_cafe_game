@@ -1,15 +1,23 @@
 import random
+from enum import IntEnum
 from enum import Enum
 from types import SimpleNamespace
+import pyglet
 
 # =========================
-# 基本設定
+# 基本設定(定数定義)
 # =========================
 CELL_SIZE = 32 # タイル1マスのピクセルサイズ
 MAX_LOGS = 100 # ログの最大保存数
 
+
 STAY_DURATION = 2 # 顧客が席に座っている時間の基本値（秒）
+NUM_INTIAL_CUSTOMER = 10 # 初期生成する顧客の数
 MAX_CUSTOMERS = 50 # 店内に同時に存在できる顧客の最大数（待機も含む）
+
+FPS = 60 # フレームレート（1秒あたりの更新回数）
+WINDOW_TITLE = "Sim Cafe Game" # ウィンドウのタイトル
+
 
 
 # =========================
@@ -41,8 +49,8 @@ def get_crowd_level(customer_count):
 # =========================
 # 客の状態についての定義
 # =========================
-# 顧客の状態を定義するEnum
-Customer_State = SimpleNamespace(
+"""
+顧客の状態を定義するEnum(IntEnumを使用して数値も持たせる)
     OUTSIDE=1, # 待機中
     MOVING_TO_ENTRANCE=2,   # 入口に向かっている
     ARRIVE=3,    # 入口に到着
@@ -53,8 +61,18 @@ Customer_State = SimpleNamespace(
     SEATED=8,    # 着席中
     LEAVING=9, # 席を立っている
     EXITED=10 # 店を出た
-)
-
+"""
+class CustomerState(IntEnum):
+    OUTSIDE = 1
+    MOVING_TO_ENTRANCE = 2
+    ARRIVE = 3
+    MOVING_TO_WAIT = 4
+    WAITING_IN_QUEUE = 5
+    WAITING_TO_SIT_TO_SEAT = 6
+    MOVING_TO_SEAT = 7
+    SEATED = 8
+    LEAVING = 9
+    EXITED = 10
 
 # =========================
 # 時間帯ごとの混雑傾向
@@ -188,3 +206,20 @@ MAP_DATA = [
     'B................WB',
     'BBBBBBBBBBBBBBBBBBB'
 ]
+
+
+# =========================
+# ウィンドウサイズ
+# =========================
+# 1. ウィンドウのサイズを設定
+WINDOW_WIDTH = len(MAP_DATA[0]) * CELL_SIZE
+WINDOW_HEIGHT = len(MAP_DATA) * CELL_SIZE
+
+# 2. スクリーン（モニター）の情報を取得
+display = pyglet.display.get_display()
+screen = display.get_default_screen()
+
+# 3. スクリーン中央の座標を計算
+# screen.width と screen.height でモニターの解像度が取れます
+CENTER_X = (screen.width - WINDOW_WIDTH) // 2
+CENTER_Y = (screen.height - WINDOW_HEIGHT) // 2

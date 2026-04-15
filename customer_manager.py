@@ -8,15 +8,12 @@ from loguru import logger
 # 顧客管理クラス
 class CustomerManager:
     # 顧客の生成と管理を担当
-    def __init__(self, parent, map_data, map, num_customers=10):
+    def __init__(self, parent):
         self.parent = parent
-        self.map = map
-        self.map_data = map_data
+        self.map = self.parent.map
+        self.map_data = MAP_DATA
 
         self.batch = self.parent.game_screen_batch
-
-        # State
-        self.customer_state = Customer_State
 
         # 座標
         self.general_area = self.map.spawn_area # 顧客が生成されるエリアの座標リスト
@@ -39,7 +36,7 @@ class CustomerManager:
         self.time_count = 0 # 時間計測用のカウンター
 
         # 生成
-        self.num_customers_to_initialize = num_customers
+        self.num_customers_to_initialize = NUM_INTIAL_CUSTOMER # 初期生成キャラ数
         self.setup_initial_customers()
 
         # 顧客の状態遷移フロー
@@ -112,7 +109,7 @@ class CustomerManager:
 
         # 顧客を生成して管理リストに追加
         mover = SimpleMover((x, y), (x, y),
-                            self.customer_state.OUTSIDE,
+                            CustomerState.OUTSIDE,
                             self.map,
                             batch=self.batch)
         # 顧客の状態を初期化
@@ -127,11 +124,11 @@ class CustomerManager:
     # 入口に向かう顧客を制御
     def handle_entrance(self):
         for cu in self.customers:
-            if cu.state == self.customer_state.OUTSIDE:
+            if cu.state == CustomerState.OUTSIDE:
                 x, y = self.map.to_pyglet_x_y(*self.map.entrance_pos)
                 cu.setup_new_target(x, y)
 
-                cu.state = self.customer_state.MOVING_TO_ENTRANCE
+                cu.state = CustomerState.MOVING_TO_ENTRANCE
                 logger.info(f"[入り口割り当て] id: {cu.id}, state: {cu.state}") # moving_to_entrance
 
 
@@ -140,11 +137,11 @@ class CustomerManager:
     # =========================
     def move_to_entrance(self, dt):
         for cu in self.customers:
-            if cu.state == self.customer_state.MOVING_TO_ENTRANCE:
+            if cu.state == CustomerState.MOVING_TO_ENTRANCE:
                 cu.update(dt)
 
                 if cu.reached:
-                    cu.state = self.customer_state.ARRIVE
+                    cu.state = CustomerState.ARRIVE
                     logger.info(f"[入り口到着] id: {cu.id}, state: {cu.state}")
                     cu.reached = False
 
@@ -154,7 +151,7 @@ class CustomerManager:
     # =========================
     def assign_wait_area(self):
         for cu in self.customers:
-            if cu.state == self.customer_state.ARRIVE:
+            if cu.state == CustomerState.ARRIVE:
                 # 最も近い人を待機場所に割り当てる
                 # logger.debug(f"{self.wait_chair}")
                 for j, chaired in enumerate(self.wait_chair):
@@ -167,7 +164,7 @@ class CustomerManager:
                         x, y = self.waiting_queue[j]
                         x, y = self.map.to_pyglet_x_y(x, y)
 
-                        cu.state = self.customer_state.MOVING_TO_WAIT
+                        cu.state = CustomerState.MOVING_TO_WAIT
                         logger.info(f"[待機場所にアサイン] id: {cu.id} state: {cu.state}")   
                         break
 
@@ -188,10 +185,10 @@ class CustomerManager:
             if cu.reached:
                 # 最前列だけ「席へ移動する状態」にする
                 if idx == 0:
-                    cu.state = self.customer_state.WAITING_TO_SIT_TO_SEAT
+                    cu.state = CustomerState.WAITING_TO_SIT_TO_SEAT
                     logger.info(f"[席アサイン待ち] id: {cu.id}, idx {idx}, target: {(x, y)}, state: {cu.state}")
                 else:
-                    cu.state = self.customer_state.WAITING_IN_QUEUE
+                    cu.state = CustomerState.WAITING_IN_QUEUE
             cu.reached = False
 
 
@@ -230,7 +227,7 @@ class CustomerManager:
 
                         # 最前列だけ「席へ移動する状態」にする
                         if current_i == 0:
-                            cu.state = self.customer_state.WAITING_TO_SIT_TO_SEAT
+                            cu.state = CustomerState.WAITING_TO_SIT_TO_SEAT
                             logger.info(f"【最前列：席アサイン待ち】id: {cu.id} state:{cu.state}")
 
 
@@ -241,7 +238,7 @@ class CustomerManager:
     # =========================
     def handle_deletion(self):
         for cu in self.customers[:]:
-            if cu.state == self.customer_state.EXITED:
+            if cu.state == CustomerState.EXITED:
                 if hasattr(cu, "sprite") and cu.sprite:
                     cu.sprite.delete()
 
