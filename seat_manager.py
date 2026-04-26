@@ -55,7 +55,7 @@ class SeatManager():
                         cu.setup_new_target(x, y)
                         cu.state = CustomerState.MOVING_TO_SEAT
 
-                        logger.info(f"【席アサイン】id: {cu.id} seat:{j} state:{cu.state}")
+                        logger.info(f"【席アサイン】id: {cu.id} seat:{j} state:{cu.state.name}")
 
                         # 待機列処理
                         for cu_value in self.parent.customer_manager.waiting_queue:
@@ -85,7 +85,7 @@ class SeatManager():
                     cu.state = CustomerState.SEATED
                     cu.reached = False
 
-                    logger.info(f"[着席] id:{cu.id}")
+                    logger.info(f"[着席] id:{cu.id} state:{cu.state.name}")
 
 
     # =========================
@@ -115,7 +115,7 @@ class SeatManager():
                     cu.setup_new_target(x, y)
                     cu.state = CustomerState.LEAVING
 
-                    logger.info(f"[退店開始] id:{cu.id}")
+                    logger.info(f"[退店開始] id:{cu.id}  state:{cu.state.name}")
 
                     # 席解放
                     self.seat_in_use[cu.seat_index] = False
@@ -133,7 +133,7 @@ class SeatManager():
 
                 if cu.reached:
                     cu.state = CustomerState.EXITED
-                    logger.info(f"[退店完了] id:{cu.id}")
+                    logger.info(f"[退店完了] id:{cu.id} state:{cu.state.name}")
 
 
     # =========================

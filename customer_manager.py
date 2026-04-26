@@ -1,6 +1,6 @@
 from setting import *
 from customer import Customer
-from simple_mover import SimpleMover
+from customer_agent import CustomerAgent
 import random
 import pyglet
 from loguru import logger
@@ -43,6 +43,8 @@ class CustomerManager:
         # "outside" → "moving_to_entrance" → "arrive" → "moving_to_wait" 
         # → "waiting_in_queue" → "waiting_to_sit_to_seat" → "moving_to_seat" 
         # → "seated" → "leaving" → "exited"
+
+        # print("CustomerManager initialized")
 
 
     # =========================
@@ -108,14 +110,14 @@ class CustomerManager:
         x, y = self.map.to_pyglet_x_y(x, y)
 
         # 顧客を生成して管理リストに追加
-        mover = SimpleMover((x, y), (x, y),
+        customer = CustomerAgent((x, y), (x, y),
                             CustomerState.OUTSIDE,
                             self.map,
                             batch=self.batch)
         # 顧客の状態を初期化
-        self.customers.append(mover)
+        self.customers.append(customer)
 
-        logger.info(f"[生成] id: {mover.id}, state: {mover.state}") # outside
+        logger.info(f"[生成] id: {customer.id}, state: {customer.state.name}") # outside
 
 
     # =========================
@@ -129,7 +131,7 @@ class CustomerManager:
                 cu.setup_new_target(x, y)
 
                 cu.state = CustomerState.MOVING_TO_ENTRANCE
-                logger.info(f"[入り口割り当て] id: {cu.id}, state: {cu.state}") # moving_to_entrance
+                logger.info(f"[入り口割り当て] id: {cu.id}, state: {cu.state.name}") # moving_to_entrance
 
 
     # =========================
@@ -142,7 +144,7 @@ class CustomerManager:
 
                 if cu.reached:
                     cu.state = CustomerState.ARRIVE
-                    logger.info(f"[入り口到着] id: {cu.id}, state: {cu.state}")
+                    logger.info(f"[入り口到着] id: {cu.id}, state: {cu.state.name}")
                     cu.reached = False
 
 
@@ -165,7 +167,7 @@ class CustomerManager:
                         x, y = self.map.to_pyglet_x_y(x, y)
 
                         cu.state = CustomerState.MOVING_TO_WAIT
-                        logger.info(f"[待機場所にアサイン] id: {cu.id} state: {cu.state}")   
+                        logger.info(f"[待機場所にアサイン] id: {cu.id} state: {cu.state.name}")   
                         break
 
 
@@ -175,9 +177,6 @@ class CustomerManager:
     def handle_waiting(self, dt):
         for num, (cu, idx) in enumerate(self.waiting_queue):
 
-            # if cu.state != "moving_to_wait":
-            #     continue
-
             x, y = self.map.to_pyglet_x_y(*self.wait_positions[idx])
             cu.setup_new_target(x, y)
             cu.update(dt)
@@ -186,7 +185,7 @@ class CustomerManager:
                 # 最前列だけ「席へ移動する状態」にする
                 if idx == 0:
                     cu.state = CustomerState.WAITING_TO_SIT_TO_SEAT
-                    logger.info(f"[席アサイン待ち] id: {cu.id}, idx {idx}, target: {(x, y)}, state: {cu.state}")
+                    logger.info(f"[席アサイン待ち] id: {cu.id}, idx {idx}, target: {(x, y)}, state: {cu.state.name}")
                 else:
                     cu.state = CustomerState.WAITING_IN_QUEUE
             cu.reached = False
@@ -220,7 +219,7 @@ class CustomerManager:
                         x, y = self.map.to_pyglet_x_y(x, y)
 
 
-                        logger.info(f"[詰める] id: {cu.id}, target: {(x, y)}, state: {cu.state} current_i: {current_i} -> new_i: {i}")
+                        logger.info(f"[詰める] id: {cu.id}, target: {(x, y)}, state: {cu.state.name} current_i: {current_i} -> new_i: {i}")
 
                         # 移動指示
                         cu.setup_new_target(x, y)
@@ -228,7 +227,7 @@ class CustomerManager:
                         # 最前列だけ「席へ移動する状態」にする
                         if current_i == 0:
                             cu.state = CustomerState.WAITING_TO_SIT_TO_SEAT
-                            logger.info(f"【最前列：席アサイン待ち】id: {cu.id} state:{cu.state}")
+                            logger.info(f"【最前列：席アサイン待ち】id: {cu.id} state:{cu.state.name}")
 
 
                         break

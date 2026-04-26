@@ -39,10 +39,12 @@ class Map():
 
         # マップ解析と初期描画
         self._parse_map()
+
         # 待機エリアは後ろから埋まっていくようにするため、待機エリアのリストを逆順にしておく
         self.wait_queue.reverse()
         # キャラクターファイルのリストを取得
         self.chara_file = glob.glob("./characters/*")
+        # print("Map")
 
 
     # =========================
@@ -90,6 +92,7 @@ class Map():
     # =========================
     def _draw_rect(self, px, py, color):
         rect = pyglet.shapes.Rectangle(px, py, self.cell_size, self.cell_size, color=color, batch=self.batch)
+        # print(rect.batch)
         self.tiles.append(rect)
 
     def _to_pixel(self, x, y):

@@ -1,7 +1,6 @@
 import random
 from enum import IntEnum
 from enum import Enum
-from types import SimpleNamespace
 import pyglet
 
 # =========================
