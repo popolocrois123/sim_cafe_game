@@ -1,5 +1,6 @@
 from setting import *
 from customer import Customer
+from customer_dispatcher import CustomerDispatcher
 from customer_agent import CustomerAgent
 import random
 import pyglet
@@ -39,6 +40,26 @@ class CustomerManager:
         self.num_customers_to_initialize = NUM_INTIAL_CUSTOMER # 初期生成キャラ数
         self.setup_initial_customers()
 
+        # # イベント管理
+        # イベント用のstate定数
+        DISPATCHER_EVENTS = [
+            "OUTSIDE",
+            "MOVING_TO_ENTRANCE", 
+            "ARRIVE",
+            "MOVING_TO_WAIT",
+            "WAITING_IN_QUEUE",
+            "WAITING_TO_SIT_TO_SEAT",
+            "MOVING_TO_SEAT",
+            "SEATED",
+            "LEAVING",
+            "EXITED"
+        ]
+
+
+        
+
+        # self.register_event_type('')
+
         # 顧客の状態遷移フロー
         # "outside" → "moving_to_entrance" → "arrive" → "moving_to_wait" 
         # → "waiting_in_queue" → "waiting_to_sit_to_seat" → "moving_to_seat" 
@@ -65,9 +86,11 @@ class CustomerManager:
         self.assign_wait_area()
         self.handle_waiting(dt)
         self.handle_deletion()
-        # self.shift_waiting_customers_forward()
+        
 
         self.update_time(dt)
+
+        # self.shift_waiting_customers_forward()
 
 
     # =========================
@@ -280,3 +303,12 @@ class CustomerManager:
     # =========================
     def get_wait_chair_in_use(self):
         return sum(self.wait_chair)
+    
+
+
+    # =========================
+    # イベント管理
+    # =========================
+    def create_customer(self, name):
+        # Managerが定義を知っているので、Customerに教えながら作る
+        return CustomerDispatcher(name, self.DISPATCHER_EVENTS)
