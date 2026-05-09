@@ -57,8 +57,8 @@ class Main():
         
         # on_draw()を実行するためのイベントハンドラーをウィンドウに登録
         # selfでもできるけど入れた方が明示的でわかりやすいと思う
-        self.window.push_handlers(self.on_draw, on_key_press_01=self.on_key_press_01)
-        # self.dispatcher.push_handlers(self.ui_manager)
+        self.window.push_handlers(self.on_draw, on_key_press=self.on_key_press_01)
+        self.dispatcher.push_handlers(self.ui_manager)
 
         
         pyglet.clock.schedule_interval(self.update, 1/FPS)
@@ -70,9 +70,9 @@ class Main():
         self.game_screen_batch.draw()
 
     def on_key_press_01(self, symbol, modifiers):
-        print("1. Mainがキーを検知しました")
         if symbol == key.P:
-            self.dispatcher.dispatch_event("on_key_press", symbol, modifiers)
+            self.dispatcher.dispatch_event("on_key_press_01", symbol, modifiers)
+            print("1. Mainがキーを検知しました")
         #     self.is_paused = not self.is_paused
             # logger.info(f"キーが押されました: {symbol}")
 
