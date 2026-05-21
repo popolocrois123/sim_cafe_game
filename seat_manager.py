@@ -2,9 +2,11 @@ import pyglet
 from loguru import logger
 from setting import *
 import random
+from pyglet.event import EventDispatcher
 
-class SeatManager():
+class SeatManager(EventDispatcher):
     def __init__(self, parent):
+        super().__init__() # EventDispatcherの初期化を呼び出す
         self.parent = parent
         self.map = self.parent.map
 
@@ -19,6 +21,9 @@ class SeatManager():
 
         # y補正
         self.real_grid_y = len(self.map.map_data)
+
+        # イベント登録
+        self.register_event_type('on_assign_seat') # 席割り当てイベントの登録
 
         # 顧客の状態遷移フロー
         # "outside" → "moving_to_entrance" → "arrive" → "moving_to_wait" 
@@ -56,19 +61,22 @@ class SeatManager():
                         cu.state = CustomerState.MOVING_TO_SEAT
 
                         logger.info(f"【席アサイン】id: {cu.id} seat:{j} state:{cu.state.name}")
+                        # イベント
+                        self.dispatch_event('on_assign_seat', cu)
 
-                        # 待機列処理
-                        for cu_value in self.parent.customer_manager.waiting_queue:
-                            if cu in cu_value:
-                                cu_number = cu_value[1]
+                        # # 待機列処理
+                        # for cu_value in self.parent.customer_manager.waiting_queue:
+                        #     if cu in cu_value:
+                        #         cu_number = cu_value[1]
 
-                        self.parent.customer_manager.wait_chair[cu_number] = False
+                        # self.parent.customer_manager.wait_chair[cu_number] = False
 
-                        self.parent.customer_manager.waiting_queue = [
-                            x for x in self.parent.customer_manager.waiting_queue if x[0] != cu
-                        ]
-                        # 待機列を前に詰める
-                        self.parent.customer_manager.shift_waiting_customers_forward()
+                        # self.parent.customer_manager.waiting_queue = [
+                        #     x for x in self.parent.customer_manager.waiting_queue if x[0] != cu
+                        # ]
+                        # # 待機列を前に詰める
+                        # self.parent.customer_manager.shift_waiting_customers_forward()
+
 
                         break
 

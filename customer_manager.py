@@ -4,12 +4,14 @@ from customer_dispatcher import CustomerDispatcher
 from customer_agent import CustomerAgent
 import random
 import pyglet
+from pyglet.event import EventDispatcher
 from loguru import logger
 
 # 顧客管理クラス
-class CustomerManager:
+class CustomerManager(EventDispatcher):
     # 顧客の生成と管理を担当
     def __init__(self, parent):
+        super().__init__() # EventDispatcherの初期化を呼び出す
         self.parent = parent
         self.map = self.parent.map
         self.map_data = MAP_DATA
@@ -40,21 +42,8 @@ class CustomerManager:
         self.num_customers_to_initialize = NUM_INTIAL_CUSTOMER # 初期生成キャラ数
         self.setup_initial_customers()
 
-        # # イベント管理
-        # イベント用のstate定数
-        DISPATCHER_EVENTS = [
-            "OUTSIDE",
-            "MOVING_TO_ENTRANCE", 
-            "ARRIVE",
-            "MOVING_TO_WAIT",
-            "WAITING_IN_QUEUE",
-            "WAITING_TO_SIT_TO_SEAT",
-            "MOVING_TO_SEAT",
-            "SEATED",
-            "LEAVING",
-            "EXITED"
-        ]
-
+        # # # イベント管理
+        # self.register_event_type('on_assign_seat') # 顧客生成イベントの登録
 
         
 
@@ -251,8 +240,7 @@ class CustomerManager:
                         if current_i == 0:
                             cu.state = CustomerState.WAITING_TO_SIT_TO_SEAT
                             logger.info(f"【最前列：席アサイン待ち】id: {cu.id} state:{cu.state.name}")
-
-
+                    
                         break
 
     # =========================
@@ -309,6 +297,23 @@ class CustomerManager:
     # =========================
     # イベント管理
     # =========================
-    def create_customer(self, name):
-        # Managerが定義を知っているので、Customerに教えながら作る
-        return CustomerDispatcher(name, self.DISPATCHER_EVENTS)
+    # def create_customer(self, name):
+    #     # Managerが定義を知っているので、Customerに教えながら作る
+    #     return CustomerDispatcher(name, self.DISPATCHER_EVENTS)
+
+    def on_assign_seat(self, cu):
+        print(f"イベント発火: 顧客が席にアサインしました id: {cu.id}, state: {cu.state.name}")
+        # 待機列処理
+        for cu_value in self.waiting_queue:
+            if cu in cu_value:
+                cu_number = cu_value[1]
+
+        print(f"待機列の位置: {cu_number}")
+
+        self.wait_chair[cu_number] = False
+
+        self.waiting_queue = [
+            x for x in self.waiting_queue if x[0] != cu
+        ]
+        # 待機列を前に詰める
+        self.shift_waiting_customers_forward()

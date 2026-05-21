@@ -2,7 +2,6 @@ import pyglet
 from map import Map
 from setting import *
 from customer_manager import CustomerManager
-from dispatcher import Dispatcher
 from uimanager import UIManager
 from seat_manager import SeatManager
 from loguru import logger
@@ -38,9 +37,6 @@ class Main():
         # 背景のmapクラスの生成
         self.map = Map(self)
 
-        # イベントディスパッチャDispatcherの生成
-        self.dispatcher = Dispatcher()
-
         # UIManagerクラスの生成
         self.ui_manager = UIManager()
 
@@ -54,11 +50,12 @@ class Main():
         # self.dispatcher = Dispatcher()
 
 
+        # イベント
+        self.seat_manager.push_handlers(self.customer_manager)
         
         # on_draw()を実行するためのイベントハンドラーをウィンドウに登録
         # selfでもできるけど入れた方が明示的でわかりやすいと思う
         self.window.push_handlers(self.on_draw, on_key_press=self.on_key_press_01)
-        self.dispatcher.push_handlers(self.ui_manager)
 
         
         pyglet.clock.schedule_interval(self.update, 1/FPS)
@@ -85,7 +82,7 @@ class Main():
         self.customer_manager.update(dt)
         self.seat_manager.update(dt)
    
-
+    
 if __name__ == "__main__":
     game = Main()
     pyglet.app.run()
