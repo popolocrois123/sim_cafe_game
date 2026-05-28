@@ -50,8 +50,9 @@ class Main():
         # self.dispatcher = Dispatcher()
 
 
-        # イベント
+        self.customer_manager.push_handlers(self.seat_manager)
         self.seat_manager.push_handlers(self.customer_manager)
+
         
         # on_draw()を実行するためのイベントハンドラーをウィンドウに登録
         # selfでもできるけど入れた方が明示的でわかりやすいと思う

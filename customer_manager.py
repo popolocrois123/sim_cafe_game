@@ -43,7 +43,7 @@ class CustomerManager(EventDispatcher):
         self.setup_initial_customers()
 
         # # # イベント管理
-        # self.register_event_type('on_assign_seat') # 顧客生成イベントの登録
+        self.register_event_type('on_assign_seat') # 顧客生成イベントの登録
 
         
 
@@ -74,7 +74,7 @@ class CustomerManager(EventDispatcher):
         self.move_to_entrance(dt)
         self.assign_wait_area()
         self.handle_waiting(dt)
-        self.handle_deletion()
+        # self.handle_deletion()
         
 
         self.update_time(dt)
@@ -197,7 +197,10 @@ class CustomerManager(EventDispatcher):
                 # 最前列だけ「席へ移動する状態」にする
                 if idx == 0:
                     cu.state = CustomerState.WAITING_TO_SIT_TO_SEAT
+                    # イベントを発火
+                    self.dispatch_event('on_assign_seat', cu)
                     logger.info(f"[席アサイン待ち] id: {cu.id}, idx {idx}, target: {(x, y)}, state: {cu.state.name}")
+                
                 else:
                     cu.state = CustomerState.WAITING_IN_QUEUE
             cu.reached = False
@@ -240,19 +243,19 @@ class CustomerManager(EventDispatcher):
                         if current_i == 0:
                             cu.state = CustomerState.WAITING_TO_SIT_TO_SEAT
                             logger.info(f"【最前列：席アサイン待ち】id: {cu.id} state:{cu.state.name}")
-                    
+
+                        
                         break
 
     # =========================
     # 削除
     # =========================
-    def handle_deletion(self):
-        for cu in self.customers[:]:
-            if cu.state == CustomerState.EXITED:
-                if hasattr(cu, "sprite") and cu.sprite:
-                    cu.sprite.delete()
+    def handle_deletion(self, cu):
+        if cu.state == CustomerState.EXITED:
+            if hasattr(cu, "sprite") and cu.sprite:
+                cu.sprite.delete()
 
-                self.customers.remove(cu)
+            self.customers.remove(cu)
 
 
     # =========================
@@ -297,23 +300,6 @@ class CustomerManager(EventDispatcher):
     # =========================
     # イベント管理
     # =========================
-    # def create_customer(self, name):
-    #     # Managerが定義を知っているので、Customerに教えながら作る
-    #     return CustomerDispatcher(name, self.DISPATCHER_EVENTS)
-
-    def on_assign_seat(self, cu):
-        print(f"イベント発火: 顧客が席にアサインしました id: {cu.id}, state: {cu.state.name}")
-        # 待機列処理
-        for cu_value in self.waiting_queue:
-            if cu in cu_value:
-                cu_number = cu_value[1]
-
-        print(f"待機列の位置: {cu_number}")
-
-        self.wait_chair[cu_number] = False
-
-        self.waiting_queue = [
-            x for x in self.waiting_queue if x[0] != cu
-        ]
-        # 待機列を前に詰める
-        self.shift_waiting_customers_forward()
+    def on_move_to_exit(self, cu):
+        self.handle_deletion(cu)
+        logger.info(f"イベント発火: on_move_to_exit for id: {cu.id}")

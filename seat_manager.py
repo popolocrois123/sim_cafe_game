@@ -22,8 +22,10 @@ class SeatManager(EventDispatcher):
         # y補正
         self.real_grid_y = len(self.map.map_data)
 
-        # イベント登録
-        self.register_event_type('on_assign_seat') # 席割り当てイベントの登録
+
+        # イベント管理 
+        self.register_event_type('on_move_to_exit') # 顧客生成イベントの登録
+
 
         # 顧客の状態遷移フロー
         # "outside" → "moving_to_entrance" → "arrive" → "moving_to_wait" 
@@ -32,7 +34,6 @@ class SeatManager(EventDispatcher):
         # CustomerState = self.parent.customer_manager.customer_state
 
     def update(self, dt):
-        self.assign_seat()
         self.move_to_seat(dt)
         self.eating(dt)
         self.move_to_exit(dt)
@@ -42,43 +43,50 @@ class SeatManager(EventDispatcher):
     # =========================
     # 席割り当て
     # =========================
-    def assign_seat(self):
-        for cu in self.customers:
-            if cu.state == CustomerState.WAITING_TO_SIT_TO_SEAT and not cu.has_reserved_seat:
+    def assign_seat(self, cu):
+        """指定された顧客に空いている席を1つ割り当てます"""
+        # すでに席を確保している場合は何もしない
+        if cu.has_reserved_seat:
+            return
 
-                for j, in_use in enumerate(self.seat_in_use):
-                    if not in_use:
-                        # 席確保
-                        self.seat_in_use[j] = True
-                        cu.has_reserved_seat = True # 席を確保したフラグ
-                        cu.seat_index = j
+        for j, in_use in enumerate(self.seat_in_use):
+            if not in_use:
+                # 席確保
+                self.seat_in_use[j] = True
+                cu.has_reserved_seat = True  # 席を確保したフラグ
+                cu.seat_index = j
 
-                        # 座標設定
-                        x, y = self.seat_positions[j]
-                        y = self.real_grid_y - (y + 1)
+                # 座標設定
+                x, y = self.seat_positions[j]
+                y = self.real_grid_y - (y + 1)
 
-                        cu.setup_new_target(x, y)
-                        cu.state = CustomerState.MOVING_TO_SEAT
+                cu.setup_new_target(x, y)
+                cu.state = CustomerState.MOVING_TO_SEAT
 
-                        logger.info(f"【席アサイン】id: {cu.id} seat:{j} state:{cu.state.name}")
-                        # イベント
-                        self.dispatch_event('on_assign_seat', cu)
+                logger.info(f"【席アサイン】id: {cu.id} seat:{j} state:{cu.state.name}")
 
-                        # # 待機列処理
-                        # for cu_value in self.parent.customer_manager.waiting_queue:
-                        #     if cu in cu_value:
-                        #         cu_number = cu_value[1]
+                # 待機列処理（該当する顧客の待機椅子を解放）
+                for cu_value in self.parent.customer_manager.waiting_queue:
+                    if cu == cu_value[0]:  # タプルの1番目が顧客インスタンスと一致するか
+                        cu_number = cu_value[1]  # 待機列の番号を取得
+                        self.parent.customer_manager.wait_chair[cu_number] = False
+                        break  # 見つかったらループを抜ける
 
-                        # self.parent.customer_manager.wait_chair[cu_number] = False
+                # 待機列から削除
+                self.parent.customer_manager.waiting_queue = [
+                    x for x in self.parent.customer_manager.waiting_queue if x[0] != cu
+                ]
+                
+                # 待機列を前に詰める
+                self.parent.customer_manager.shift_waiting_customers_forward()
 
-                        # self.parent.customer_manager.waiting_queue = [
-                        #     x for x in self.parent.customer_manager.waiting_queue if x[0] != cu
-                        # ]
-                        # # 待機列を前に詰める
-                        # self.parent.customer_manager.shift_waiting_customers_forward()
+                # 席の割り当てが完了したので、座席のループを終了
+                break
 
-
-                        break
+    def on_assign_seat(self, cu):
+        logger.info(f"【イベント受信】SeatManagerがCustomerManagerから席割り当てイベントを受信しました。id: {cu.id}")
+        # 引数のcuをそのままassign_seatに渡す
+        self.assign_seat(cu)
 
 
     # =========================
@@ -123,6 +131,8 @@ class SeatManager(EventDispatcher):
                     cu.setup_new_target(x, y)
                     cu.state = CustomerState.LEAVING
 
+                    
+
                     logger.info(f"[退店開始] id:{cu.id}  state:{cu.state.name}")
 
                     # 席解放
@@ -140,7 +150,9 @@ class SeatManager(EventDispatcher):
                 cu.update(dt)
 
                 if cu.reached:
+                    # イベントを発火
                     cu.state = CustomerState.EXITED
+                    self.dispatch_event('on_move_to_exit', cu)
                     logger.info(f"[退店完了] id:{cu.id} state:{cu.state.name}")
 
 
